@@ -12,23 +12,13 @@ import {
 } from 'react-native';
 import firestore from '@react-native-firebase/firestore';
 import Icon from 'react-native-vector-icons/Ionicons';
-
+import {getAllGroups} from './helper/hepler';
 const GroupScreen = ({route, navigation}) => {
   const [groups, setgroups] = useState(null);
 
   useEffect(() => {
     function onResult(QuerySnapshot) {
-      try {
-        const allTheMsgs = QuerySnapshot.docs.map(docSnap => {
-          const data = docSnap.data();
-          const threadId = docSnap.id; // Access the document id as the threadId
-          return {...data, threadId};
-        });
-
-        setgroups(allTheMsgs);
-      } catch (error) {
-        console.log('docSanp==', error);
-      }
+      setgroups(getAllGroups(QuerySnapshot));
     }
     const unsubscribe = firestore()
       .collection('THREADS')
@@ -79,7 +69,6 @@ const GroupScreen = ({route, navigation}) => {
                   </View>
                   <View style={styles.textArea}>
                     <Text style={styles.nameText}>{item.name}</Text>
-                    {/* <Text style={styles.msgTime}>{item.messageTime}</Text>*/}
                     <Text style={styles.msgContent}>
                       {item.latestMessage.text}
                     </Text>
@@ -127,20 +116,11 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: '#cccccc',
   },
-  userText: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
+
   nameText: {
     fontSize: 14,
     fontWeight: '900',
     fontFamily: 'Verdana',
-    color: 'black',
-  },
-  msgTime: {
-    textAlign: 'right',
-    fontSize: 11,
-    marginTop: -20,
     color: 'black',
   },
   msgContent: {

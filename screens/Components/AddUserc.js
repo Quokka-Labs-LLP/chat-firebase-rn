@@ -7,8 +7,6 @@ import {
   Text,
   FlatList,
 } from 'react-native';
-import Pdf from 'react-native-pdf';
-import Video from 'react-native-video';
 import Icon from 'react-native-vector-icons/Ionicons';
 import firestore from '@react-native-firebase/firestore';
 import {sendNotification} from '../Notification/NotificationController';
@@ -62,7 +60,6 @@ function AddUserc({visible, props, groupId, onClose}) {
         );
         setSelected([]);
         setSelectedfcm([]);
-        console.log('User added to the group successfully!');
       } catch (error) {
         console.error('Error adding user to the group:', error);
       }
@@ -74,7 +71,6 @@ function AddUserc({visible, props, groupId, onClose}) {
   const selectMemeber = (id, fcmToken) => {
     const index = selected.indexOf(id);
     const tokenindex = selectedFcm.indexOf(fcmToken);
-    console.log('index   ', index); // Check if ID exists in the array
     if (index === -1) {
       setSelected([...selected, id]);
       setSelectedfcm([...selectedFcm, fcmToken]);

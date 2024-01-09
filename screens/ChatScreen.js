@@ -10,12 +10,18 @@ import {
   Image,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
-import Feather from 'react-native-vector-icons/Feather';
+import {
+  getUrl,
+  timeFormat,
+  updateLetestMessage,
+  updateMessages,
+  fileUploadd,
+  getFcmTokens,
+  getMessages,
+} from './helper/hepler';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
-import dayjs from 'dayjs';
 import {GiftedChat, Bubble, InputToolbar, Send} from 'react-native-gifted-chat';
 import firestore from '@react-native-firebase/firestore';
-import storagee from '@react-native-firebase/storage';
 import DocumentPicker from 'react-native-document-picker';
 import InChatFileTransfer from './Components/InChatFileTransfer';
 import InChatViewFile from './Components/InChatViewFile';
@@ -41,18 +47,7 @@ const ChatScreen = ({user, route, navigation}) => {
   useEffect(() => {
     const docid = uid > user.uid ? user.uid + '-' + uid : uid + '-' + user.uid;
     function onResult(QuerySnapshot) {
-      try {
-        const allTheMsgs = QuerySnapshot.docs.map(docSanp => {
-          // console.log("docSanp==",docSanp.data())
-          return {
-            ...docSanp.data(),
-            createdAt: docSanp.data()?.createdAt?.toDate(),
-          };
-        });
-        setMessages(allTheMsgs);
-      } catch (error) {
-        console.log('docSanp==', error);
-      }
+      setMessages(getMessages(QuerySnapshot));
     }
     const unsubscribe = firestore()
       .collection(from == 'group' ? 'THREADS' : 'Chats')
@@ -64,17 +59,18 @@ const ChatScreen = ({user, route, navigation}) => {
   }, []);
   useEffect(() => {
     function onResult(QuerySnapshot) {
-      try {
-        const fcmtokens = QuerySnapshot.docs
-          .filter(
-            docSnap =>
-              docSnap.data().fcmToken !== storage.getString('fcmtoken'),
-          )
-          .map(docSnap => docSnap.data().fcmToken);
-        setfcmTokens(fcmtokens);
-      } catch (error) {
-        console.log('docSnap==', error);
-      }
+      setfcmTokens(getFcmTokens(QuerySnapshot));
+      // try {
+      //   const fcmtokens = QuerySnapshot.docs
+      //     .filter(
+      //       docSnap =>
+      //         docSnap.data().fcmToken !== storage.getString('fcmtoken'),
+      //     )
+      //     .map(docSnap => docSnap.data().fcmToken);
+      //   setfcmTokens(fcmtokens);
+      // } catch (error) {
+      //   console.log('docSnap==', error);
+      // }
     }
 
     // Assuming userIDs is an array of user IDs you want to fetch
@@ -92,21 +88,6 @@ const ChatScreen = ({user, route, navigation}) => {
       storage.delete('sessionName');
     };
   }, []);
-
-  const geturl = async filename => {
-    console.log('get url....');
-    let imageRef = storagee().ref('/' + filename);
-    imageRef
-      .getDownloadURL()
-      .then(url => {
-        setuplodedimagerul(url);
-      })
-      .catch(e => console.log('getting downloadURL of image error => ', e))
-      .finally(() => {
-        setpriloading(false);
-        setloding(false);
-      });
-  };
 
   useEffect(() => {
     const getUserName = async () => {
@@ -150,16 +131,17 @@ const ChatScreen = ({user, route, navigation}) => {
   }, []);
 
   const uploadfile = async uploaduri => {
-    const filename = uploaduri.substring(uploaduri.lastIndexOf('/') + 1);
-    const task = storagee().ref(filename).putFile(uploaduri);
-    task.on('state_changed', snapshot => {
-      setTransferred(
-        Math.round(snapshot.bytesTransferred / snapshot.totalBytes) * 10000,
-      );
-    });
     try {
-      await task;
-      await geturl(filename);
+      await fileUploadd(uploaduri).then(() => {
+        getUrl(uploaduri)
+          .then(url => {
+            setuplodedimagerul(url);
+          })
+          .finally(() => {
+            setpriloading(false);
+            setloding(false);
+          });
+      });
     } catch (e) {
       console.error(e);
     }
@@ -178,40 +160,26 @@ const ChatScreen = ({user, route, navigation}) => {
         mode: 'import',
         allowMultiSelection: true,
       });
-      const fileUri = result[0].fileCopyUri;
+      const fileUri =
+        Platform.OS === 'ios'
+          ? result[0].fileCopyUri.replace('file://', '')
+          : result[0].fileCopyUri;
       if (!fileUri) {
-        console.log('File URI is undefined or null');
         return;
       }
       if (
-        fileUri.indexOf('.png') !== -1 ||
-        fileUri.indexOf('.jpg') !== -1 ||
-        fileUri.indexOf('.mp4') !== -1 ||
-        fileUri.indexOf('.mov') !== -1
+        ['.png', '.jpg', '.mp4', '.mov'].some(extension =>
+          fileUri.includes(extension),
+        )
       ) {
-        setImagePath(
-          Platform.OS === 'ios' ? fileUri.replace('file://', '') : fileUri,
-        );
-        uploadfile(
-          Platform.OS === 'ios' ? fileUri.replace('file://', '') : fileUri,
-        );
+        setImagePath(fileUri);
         setIsAttachImage(true);
-        setloding(true);
-      } else if (fileUri.indexOf('.mp3') !== -1) {
-        setFilePath(fileUri);
-        setIsAttachFile(true);
-        setloding(true);
-        uploadfile(
-          Platform.OS === 'ios' ? fileUri.replace('file://', '') : fileUri,
-        );
       } else {
         setFilePath(fileUri);
         setIsAttachFile(true);
-        setloding(true);
-        uploadfile(
-          Platform.OS === 'ios' ? fileUri.replace('file://', '') : fileUri,
-        );
       }
+      setloding(true);
+      uploadfile(fileUri);
     } catch (err) {
       if (DocumentPicker.isCancel(err)) {
         console.log('User cancelled file picker');
@@ -297,157 +265,48 @@ const ChatScreen = ({user, route, navigation}) => {
   const onSend = useCallback(
     (messages = []) => {
       const [messageToSend] = messages;
-
-      if (isAttachImage) {
-        const newMessage = {
-          ...messageToSend,
-          createdAt: Date.now(),
-          sentBy: user.uid,
-          sentTo: uid,
-          image: imagePath.split('.').pop() == 'mp4' ? '' : uplodedimagerul,
-          vedio: imagePath.split('.').pop() == 'mp4' ? uplodedimagerul : '',
-          file: {
-            url: '',
-          },
-        };
-        setMessages(previousMessages =>
-          GiftedChat.append(previousMessages, newMessage),
-        );
-        const docid =
-          uid > user.uid ? user.uid + '-' + uid : uid + '-' + user.uid;
-        firestore()
-          .collection(from == 'group' ? 'THREADS' : 'Chats')
-          .doc(from == 'group' ? uid : docid)
-          .set(
-            {
-              latestMessage: {
-                ...newMessage,
-                createdAt: firestore.FieldValue.serverTimestamp(),
-              },
-            },
-            {merge: true},
-          );
-
-        firestore()
-          .collection(from == 'group' ? 'THREADS' : 'Chats')
-          .doc(from == 'group' ? uid : docid)
-          .collection('messages')
-          .add({
-            ...newMessage,
-            createdAt: firestore.FieldValue.serverTimestamp(),
-          });
-        setImagePath('');
-        setIsAttachImage(false);
-        sendNotification(
-          newMessage.text,
-          fcmTokenss,
-          `New Message From ${username}`,
-          from == 'group' ? uid : user.uid,
-        ).then(result => {
-          console.log('notification res ', result);
-        });
-        // }
-      } else if (isAttachFile) {
-        const newMessage = {
-          ...messageToSend,
-          createdAt: new Date(),
-          sentBy: user.uid,
-          sentTo: uid,
-          image: '',
-          vedio: imagePath.split('.').pop() == 'mp4' ? uplodedimagerul : '',
-          file: {
-            url:
-              filePath.split('.').pop() == 'pdf' ||
+      var newMessage = {
+        ...messageToSend,
+        createdAt: new Date(),
+        sentBy: user.uid,
+        sentTo: uid,
+        image: isAttachImage
+          ? imagePath.split('.').pop() == 'mp4'
+            ? ''
+            : uplodedimagerul
+          : '',
+        vedio: isAttachImage
+          ? imagePath.split('.').pop() == 'mp4'
+            ? uplodedimagerul
+            : ''
+          : '',
+        file: {
+          url: isAttachFile
+            ? filePath.split('.').pop() == 'pdf' ||
               filePath.split('.').pop() == 'mp3'
-                ? uplodedimagerul
-                : '',
-            type: filePath.split('.').pop(),
-          },
-        };
-        setMessages(previousMessages =>
-          GiftedChat.append(previousMessages, newMessage),
-        );
-        const docid =
-          uid > user.uid ? user.uid + '-' + uid : uid + '-' + user.uid;
-        firestore()
-          .collection(from == 'group' ? 'THREADS' : 'Chats')
-          .doc(from == 'group' ? uid : docid)
-          .set(
-            {
-              latestMessage: {
-                ...newMessage,
-                createdAt: firestore.FieldValue.serverTimestamp(),
-              },
-            },
-            {merge: true},
-          );
-        firestore()
-          .collection(from == 'group' ? 'THREADS' : 'Chats')
-          .doc(from == 'group' ? uid : docid)
-          .collection('messages')
-          .add({
-            ...newMessage,
-            createdAt: firestore.FieldValue.serverTimestamp(),
-          });
-        setFilePath('');
-        setIsAttachFile(false);
-        sendNotification(
-          newMessage.text,
-          fcmTokenss,
-          `New Message From ${username}`,
-          from == 'group' ? uid : user.uid,
-        ).then(result => {
-          console.log('notification res ', result);
-        });
-      } else {
-        const msg = messages[0];
-        const usermsg = {
-          ...msg,
-          sentBy: user.uid,
-          sentTo: uid,
-          createdAt: Date.now(),
-          image: '',
-          file: {
-            url: '',
-          },
-        };
-        //  console.log('usermsg----->',usermsg)
-
-        setMessages(previousMessages =>
-          GiftedChat.append(previousMessages, usermsg),
-        );
-        const docid =
-          uid > user.uid ? user.uid + '-' + uid : uid + '-' + user.uid;
-        firestore()
-          .collection(from == 'group' ? 'THREADS' : 'Chats')
-          .doc(from == 'group' ? uid : docid)
-          .set(
-            {
-              latestMessage: {
-                ...usermsg,
-                createdAt: firestore.FieldValue.serverTimestamp(),
-              },
-            },
-            {merge: true},
-          );
-        firestore()
-          .collection(from == 'group' ? 'THREADS' : 'Chats')
-          .doc(from == 'group' ? uid : docid)
-          .collection('messages')
-          .add({
-            ...usermsg,
-            createdAt: firestore.FieldValue.serverTimestamp(),
-          });
-        // if (from !== 'group') {
-        sendNotification(
-          usermsg.text,
-          fcmTokenss,
-          `New Message From ${username}`,
-          from == 'group' ? uid : user.uid,
-        ).then(result => {
-          console.log('notification res ', result);
-        });
-      }
+              ? uplodedimagerul
+              : ''
+            : '',
+          type: isAttachFile ? filePath.split('.').pop() : '',
+        },
+      };
+      setMessages(previousMessages =>
+        GiftedChat.append(previousMessages, newMessage),
+      );
+      const docid =
+        uid > user.uid ? user.uid + '-' + uid : uid + '-' + user.uid;
+      updateLetestMessage(from, uid, docid, newMessage);
+      updateMessages(from, uid, docid, newMessage);
+      setImagePath('');
+      setIsAttachImage(false);
+      setFilePath('');
+      setIsAttachFile(false);
+      sendNotification(
+        newMessage.text,
+        fcmTokenss,
+        `New Message From ${username}`,
+        from == 'group' ? uid : user.uid,
+      );
     },
     [
       filePath,
@@ -458,10 +317,11 @@ const ChatScreen = ({user, route, navigation}) => {
       username,
     ],
   );
-
+  //
   const renderBubble = useCallback(
     props => {
       const {currentMessage} = props;
+      // return funtion for attached vedio,audio and pdf massages
       if (
         (currentMessage.file && currentMessage.file.url) ||
         currentMessage.vedio
@@ -497,48 +357,26 @@ const ChatScreen = ({user, route, navigation}) => {
                   : currentMessage.file.url
               }
             />
-            <View style={{flexDirection: 'column'}}>
-              <Text
-                style={{
-                  ...styles.fileText,
-                  color:
-                    currentMessage.user._id === user.uid ? 'white' : 'black',
-                }}>
-                {currentMessage.text}
-              </Text>
-            </View>
-            <View
+            <Text
               style={{
-                flexDirection: 'row',
-                justifyContent: 'space-between',
-                width: '96%',
-                alignSelf: 'center',
+                ...styles.fileText,
+                color: currentMessage.user._id === user.uid ? 'white' : 'black',
               }}>
-              <Text
-                style={{
-                  alignSelf: 'flex-end',
-                  margin: 4,
-                  fontSize: 12,
-                  backgroundColor: 'transparent',
-                  color: '#aaa',
-                }}>
-                ~ {currentMessage.user.name}
+              {currentMessage.text}
+            </Text>
+            <View style={styles.msgTimetextCon}>
+              <Text style={styles.msgTimetext}>
+                {props.currentMessage.user._id !== user.uid &&
+                  currentMessage.user.name}
               </Text>
-              <Text
-                style={{
-                  alignSelf: 'flex-end',
-                  margin: 4,
-                  fontSize: 12,
-                  backgroundColor: 'transparent',
-                  color: '#aaa',
-                }}>
-                {dayjs(currentMessage.createdAt).locale('en').format('LT')}
+              <Text style={styles.msgTimetext}>
+                {timeFormat(currentMessage.createdAt)}
               </Text>
             </View>
           </TouchableOpacity>
         );
       }
-
+      // return funtion for only text and attached images massages
       return (
         <Bubble
           {...props}
@@ -563,6 +401,7 @@ const ChatScreen = ({user, route, navigation}) => {
     [fileVisible, selecteditem],
   );
 
+  // for scrolling mssages to the most recent
   const scrollToBottomComponent = () => {
     return <FontAwesome name="angle-double-down" size={22} color="#333" />;
   };
@@ -593,6 +432,8 @@ const ChatScreen = ({user, route, navigation}) => {
         scrollToBottom
         scrollToBottomComponent={scrollToBottomComponent}
       />
+
+      {/* view Component for attached pdf files and vedios */}
       {fileVisible ? (
         <InChatViewFile
           props={selecteditem}
@@ -602,6 +443,7 @@ const ChatScreen = ({user, route, navigation}) => {
         />
       ) : null}
 
+      {/* add users in the group Component */}
       <AddUserc
         visible={showAddUser}
         props={user}
@@ -723,5 +565,18 @@ export const styles = StyleSheet.create({
     width: 20,
     height: 20,
     justifyContent: 'center',
+  },
+  msgTimetext: {
+    alignSelf: 'flex-end',
+    margin: 4,
+    fontSize: 12,
+    backgroundColor: 'transparent',
+    color: 'white',
+  },
+  msgTimetextCon: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    width: '96%',
+    alignSelf: 'center',
   },
 });

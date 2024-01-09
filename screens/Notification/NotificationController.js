@@ -88,8 +88,6 @@ export const NotificationController = () => {
           messaging()
             .getToken()
             .then(async fcmToken => {
-              // console.log('FCM Token->', fcmToken);
-              // dispatch(changeFemToken({fcmToken}));
               storage.set('fcmtoken', fcmToken);
             })
             .catch(error => {

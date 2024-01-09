@@ -1,96 +1,110 @@
-import React,{useState,useEffect} from 'react';
-import {View, Text, StyleSheet, Image,Pressable,TouchableOpacity} from 'react-native';
+import React, {useState, useEffect} from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  Image,
+  Pressable,
+  TouchableOpacity,
+} from 'react-native';
 import Icon from 'react-native-vector-icons/AntDesign';
 import Feather from 'react-native-vector-icons/Feather';
-import SoundPlayer from 'react-native-sound-player'
-import { useFocusEffect } from '@react-navigation/native';
+import SoundPlayer from 'react-native-sound-player';
+import {useFocusEffect} from '@react-navigation/native';
 
 Icon.loadFont().then();
 
 const InChatFileTransfer = ({filePath}) => {
   useFocusEffect(
     React.useCallback(() => {
-
-
       return () => {
-
-      _onFinishedPlayingSubscription.remove()
-      _onFinishedLoadingURLSubscription.remove()
-      try {
-        SoundPlayer.stop();
-      } catch (e) {
-        console.log('cannot play the song file', e)
-      }
-
+        _onFinishedPlayingSubscription.remove();
+        _onFinishedLoadingURLSubscription.remove();
+        try {
+          SoundPlayer.stop();
+        } catch (e) {
+          console.log('cannot play the song file', e);
+        }
       };
-    }, [])
+    }, []),
   );
-const [playaudio,setplayaudio]=useState(false);
-const [audiodur,setaudiodue]=useState();
-const [playingurl,setplayingurl]=useState('');
+  const [playaudio, setplayaudio] = useState(false);
+  const [audiodur, setaudiodue] = useState();
+  const [playingurl, setplayingurl] = useState('');
 
-let _onFinishedPlayingSubscription = null;
-let _onFinishedLoadingURLSubscription = null;
+  let _onFinishedPlayingSubscription = null;
+  let _onFinishedLoadingURLSubscription = null;
 
+  useEffect(() => {
+    _onFinishedPlayingSubscription = SoundPlayer.addEventListener(
+      'FinishedPlaying',
+      ({success}) => {
+        setplayaudio(false);
+      },
+    );
+    _onFinishedLoadingURLSubscription = SoundPlayer.addEventListener(
+      'FinishedLoadingURL',
+      ({success, url}) => {
+        // setplayaudio(true);
+      },
+    );
+  }, [
+    _onFinishedPlayingSubscription,
+    _onFinishedLoadingURLSubscription,
+    playaudio,
+  ]);
 
-useEffect(()=>{
-  _onFinishedPlayingSubscription = SoundPlayer.addEventListener('FinishedPlaying', ({ success }) => {
-    setplayaudio(false);
-  })
-  _onFinishedLoadingURLSubscription = SoundPlayer.addEventListener('FinishedLoadingURL', ({ success, url }) => {
-    // setplayaudio(true);
-  })
-},[_onFinishedPlayingSubscription,_onFinishedLoadingURLSubscription,playaudio])
-
-const playSong=async(playurl)=>{
+  const playSong = async playurl => {
     try {
-      if(playaudio){
+      if (playaudio) {
         SoundPlayer.stop();
-      }else{
+      } else {
         SoundPlayer.playUrl(playurl);
       }
     } catch (e) {
-      console.log('cannot play the song file', e)
+      console.log('cannot play the song file', e);
     }
     return playurl;
-  }
+  };
 
-  const getInfo=async() =>{ // You need the keyword `async`
-    try {
-      const info = await SoundPlayer.getInfo() // Also, you need to await this because it is async
-      console.log('getInfo', info) 
-      setaudiodue(info.duration);// {duration: 12.416, currentTime: 7.691}
-    } catch (e) {
-      console.log('There is no song playing', e)
-    }
-  }
-const onPressPlayButton=(urll)=> {
-    
+  const onPressPlayButton = urll => {
     setplayaudio(!playaudio);
     playSong(urll);
-  }
+  };
   var fileType = '';
   var name = '';
   if (filePath !== undefined) {
-      name = filePath.split('/').pop();
-      fileType= filePath.split('.').pop().split('?')[0];  
+    name = filePath.split('/').pop();
+    fileType = filePath.split('.').pop().split('?')[0];
   }
   return (
     <View style={styles.container}>
       <View style={styles.frame}>
-      { fileType === 'mp3'  ?
-       <Feather style={{alignSelf:'center',padding:'2%'}} onPress={()=>onPressPlayButton(filePath)} name={playaudio ? 'pause' : 'play'} size={25} color={'grey'}/> 
-       : <Icon style={{alignSelf:'center',padding:5}} name={ fileType == 'mp4'
-                ? 'playcircleo'
-                : 'pdffile1'} size={25} color={'grey'}/>}
+        {fileType === 'mp3' ? (
+          <Feather
+            style={{alignSelf: 'center', padding: '2%'}}
+            onPress={() => onPressPlayButton(filePath)}
+            name={playaudio ? 'pause' : 'play'}
+            size={25}
+            color={'grey'}
+          />
+        ) : (
+          <Icon
+            style={{alignSelf: 'center', padding: 5}}
+            name={fileType == 'mp4' ? 'playcircleo' : 'pdffile1'}
+            size={25}
+            color={'grey'}
+          />
+        )}
         <View>
-          <Text style={styles.text} numberOfLines={1} ellipsizeMode='middle'>
-            {name.replace('%20', '').replace(' ', '').replace('%','')}
+          <Text style={styles.text} numberOfLines={1} ellipsizeMode="middle">
+            {name.replace('%20', '').replace(' ', '').replace('%', '')}
           </Text>
-          <Text style={styles.textType}>{fileType.toUpperCase().slice(0,3)}</Text>
+          <Text style={styles.textType}>
+            {fileType.toUpperCase().slice(0, 3)}
+          </Text>
         </View>
-      </View> 
-    
+      </View>
     </View>
   );
 };
@@ -110,15 +124,14 @@ const styles = StyleSheet.create({
     lineHeight: 20,
     marginLeft: 5,
     marginRight: 5,
-    width:'20%'
-  }
-  ,
+    width: '20%',
+  },
   video: {
     width: '92%',
     aspectRatio: 16 / 9,
     marginTop: 10,
     marginLeft: '4%',
-    marginRight: '4%'
+    marginRight: '4%',
   },
   textType: {
     color: 'black',

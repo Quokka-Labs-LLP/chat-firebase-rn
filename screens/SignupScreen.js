@@ -1,51 +1,23 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState} from 'react';
 import {
   View,
   Text,
-  Button,
   Dimensions,
   StyleSheet,
   TouchableOpacity,
   Platform,
   TextInput,
-  ScrollView,
 } from 'react-native';
 import auth from '@react-native-firebase/auth';
 import firestore from '@react-native-firebase/firestore';
 import {storage} from './Notification/NotificationController';
 export default SignupScreen = ({navigation}) => {
-  const [user, setUser] = useState({});
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [data, setData] = React.useState({
-    email: '',
-    password: '',
-    check_textInputChange: false,
     secureTextEntry: true,
   });
-  const textInputChange = val => {
-    if (val.length >= 10) {
-      setData({
-        ...data,
-        email: val,
-        check_textInputChange: true,
-      });
-    } else {
-      setData({
-        ...data,
-        email: val,
-        check_textInputChange: false,
-      });
-    }
-  };
-
-  const handlePassword = val => {
-    setData({
-      ...data,
-      password: val,
-    });
-  };
 
   const updateSecureText = () => {
     setData({
@@ -64,7 +36,6 @@ export default SignupScreen = ({navigation}) => {
         email,
         password,
       );
-      console.log('newReg   ', newReg);
       firestore()
         .collection('users')
         .doc(newReg.user.uid)
@@ -109,6 +80,7 @@ export default SignupScreen = ({navigation}) => {
             style={styles.textInput}
             autoCapitalize="none"
             value={name}
+            maxLength={15}
             onChangeText={setName}
           />
         </View>
@@ -146,6 +118,7 @@ export default SignupScreen = ({navigation}) => {
             style={styles.textInput}
             autoCapitalize="none"
             value={password}
+            maxLength={12}
             onChangeText={setPassword}
           />
           <TouchableOpacity onPress={updateSecureText}>

@@ -11,7 +11,6 @@ import GroupScreen from './screens/GroupScreen';
 import About from './screens/About';
 import {
   StyleSheet,
-  Alert,
   Modal,
   View,
   Text,
@@ -156,8 +155,6 @@ const App = () => {
             createdAt: new Date(),
             system: true,
           });
-
-          console.log('Group created and user added successfully!');
           return groupId;
         } catch (error) {
           console.error('Error creating group and adding user:', error);
