@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>API_KEY</key>
+	<string>AIzaSyAGWpbszUAEwB1p7N371C7Pw3uG6JGCWhc</string>
+	<key>BUNDLE_ID</key>
+	<string>org.reactjs.native.example.ChatRn</string>
+	<key>DATABASE_URL</key>
+	<string>https://gifted-chat-95fa4-default-rtdb.firebaseio.com</string>
+	<key>GCM_SENDER_ID</key>
+	<string>619929132339</string>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:619929132339:ios:4476a853dde31e9977f246</string>
+	<key>IS_ADS_ENABLED</key>
+	<false/>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false/>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true/>
+	<key>IS_GCM_ENABLED</key>
+	<true/>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true/>
+	<key>NSAppTransportSecurity</key>
+	<dict>
+		<key>NSAllowsArbitraryLoads</key>
+		<false/>
+		<key>NSAllowsLocalNetworking</key>
+		<true/>
+	</dict>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>PROJECT_ID</key>
+	<string>gifted-chat-95fa4</string>
+	<key>STORAGE_BUCKET</key>
+	<string>gifted-chat-95fa4.appspot.com</string>
+</dict>
+</plist>
