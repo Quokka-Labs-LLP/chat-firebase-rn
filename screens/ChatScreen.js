@@ -59,7 +59,9 @@ const ChatScreen = ({user, route, navigation}) => {
   }, []);
   useEffect(() => {
     function onResult(QuerySnapshot) {
+      // console.log(getFcmTokens(QuerySnapshot));
       setfcmTokens(getFcmTokens(QuerySnapshot));
+      console.log('fcmTokenss     ', fcmTokenss);
       // try {
       //   const fcmtokens = QuerySnapshot.docs
       //     .filter(

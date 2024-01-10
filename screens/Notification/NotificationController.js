@@ -253,6 +253,11 @@ export const storage = new MMKV({
 });
 
 export const sendNotification = async (text, fcmToken, title, from) => {
+  console.log('text- ', text);
+  console.log('fcmToken- ', fcmToken);
+  console.log('title- ', title);
+  console.log('from- ', from);
+
   try {
     const myHeaders = new Headers();
     myHeaders.append(
@@ -285,6 +290,7 @@ export const sendNotification = async (text, fcmToken, title, from) => {
       requestOptions,
     );
     const result = await response.text();
+    console.log('notification result', result);
     return result;
   } catch (error) {
     console.error('Error:', error);

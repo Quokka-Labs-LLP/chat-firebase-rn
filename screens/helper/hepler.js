@@ -1,6 +1,7 @@
 import dayjs from 'dayjs';
 import firestore from '@react-native-firebase/firestore';
 import storagee from '@react-native-firebase/storage';
+import {storage} from '../Notification/NotificationController';
 
 // get all users
 export const getUsers = QuerySnapshot => {
@@ -30,6 +31,7 @@ export const getFcmTokens = QuerySnapshot => {
         docSnap => docSnap.data().fcmToken !== storage.getString('fcmtoken'),
       )
       .map(docSnap => docSnap.data().fcmToken);
+    // console.log('fcmtokens   -   >', fcmtokens);
     return fcmtokens;
   } catch (error) {
     console.log('docSnap==', error);
