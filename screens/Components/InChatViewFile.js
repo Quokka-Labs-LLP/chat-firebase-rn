@@ -10,12 +10,12 @@ import {
 } from 'react-native';
 import Pdf from 'react-native-pdf';
 import Video from 'react-native-video';
+import Icon from 'react-native-vector-icons/AntDesign';
 
 function InChatViewFile({props, visible, filee, onClose}) {
   const source = {uri: props.file.url, cache: true};
   const [priloading, setpriloading] = useState(true);
   const [player, setplayer] = useState();
-
   return (
     <Modal
       visible={visible}
@@ -24,9 +24,12 @@ function InChatViewFile({props, visible, filee, onClose}) {
       style={{height: 600}}>
       <View style={styles.container}>
         <View style={{padding: 20}}>
-          <TouchableOpacity onPress={onClose} style={styles.buttonCancel}>
-            <Text style={styles.textBtn}>X</Text>
-          </TouchableOpacity>
+          <Icon
+            name={'close-circle-sharp'}
+            onPress={onClose}
+            size={20}
+            color={'white'}
+          />
         </View>
 
         {props.file.url ? (

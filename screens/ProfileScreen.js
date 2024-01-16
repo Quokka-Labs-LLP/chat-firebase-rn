@@ -80,7 +80,7 @@ const ProfileScreen = ({user}) => {
         type: [DocumentPicker.types.images],
         copyTo: 'documentDirectory',
         mode: 'import',
-        allowMultiSelection: true,
+        allowMultiSelection: false,
       });
       const fileUri = result[0].fileCopyUri;
       if (!fileUri) {

@@ -1,16 +1,11 @@
 import React, {useState, useEffect} from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  Image,
-  Pressable,
-  TouchableOpacity,
-} from 'react-native';
+import {View, Text, StyleSheet, Image, Pressable, Linking} from 'react-native';
 import Icon from 'react-native-vector-icons/AntDesign';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 import Feather from 'react-native-vector-icons/Feather';
 import SoundPlayer from 'react-native-sound-player';
 import {useFocusEffect} from '@react-navigation/native';
+import VideoPlayer from './VideoPlayer';
 
 Icon.loadFont().then();
 
@@ -29,9 +24,6 @@ const InChatFileTransfer = ({filePath}) => {
     }, []),
   );
   const [playaudio, setplayaudio] = useState(false);
-  const [audiodur, setaudiodue] = useState();
-  const [playingurl, setplayingurl] = useState('');
-
   let _onFinishedPlayingSubscription = null;
   let _onFinishedLoadingURLSubscription = null;
 
@@ -73,6 +65,9 @@ const InChatFileTransfer = ({filePath}) => {
   };
   var fileType = '';
   var name = '';
+  var isContect = filePath.slice(0, 3) == 'con';
+  var isLocation =
+    filePath.slice(0, 3) == 'geo' || filePath.slice(0, 3) == 'map';
   if (filePath !== undefined) {
     name = filePath.split('/').pop();
     fileType = filePath.split('.').pop().split('?')[0];
@@ -88,22 +83,50 @@ const InChatFileTransfer = ({filePath}) => {
             size={25}
             color={'grey'}
           />
-        ) : (
-          <Icon
+        ) : isLocation ? (
+          <Ionicons
             style={{alignSelf: 'center', padding: 5}}
-            name={fileType == 'mp4' ? 'playcircleo' : 'pdffile1'}
+            name={'location-outline'}
             size={25}
             color={'grey'}
           />
+        ) : isContect ? (
+          <Icon
+            style={{alignSelf: 'center', padding: 5}}
+            name={'user'}
+            size={30}
+            color={'grey'}
+          />
+        ) : (
+          fileType !== 'mp4' && (
+            <Icon
+              style={{alignSelf: 'center', padding: 5}}
+              name={'pdffile1'}
+              size={25}
+              color={'grey'}
+            />
+          )
         )}
-        <View>
-          <Text style={styles.text} numberOfLines={1} ellipsizeMode="middle">
-            {name.replace('%20', '').replace(' ', '').replace('%', '')}
-          </Text>
-          <Text style={styles.textType}>
-            {fileType.toUpperCase().slice(0, 3)}
-          </Text>
-        </View>
+        {fileType == 'mp4' ? (
+          <VideoPlayer Uri={filePath} />
+        ) : (
+          <View>
+            <Text style={styles.text} numberOfLines={1} ellipsizeMode="middle">
+              {isLocation
+                ? filePath
+                : isContect
+                ? filePath.split('.')[1]
+                : name.replace('%20', '').replace(' ', '').replace('%', '')}
+            </Text>
+            <Text style={styles.textType}>
+              {isLocation
+                ? 'Location'
+                : isContect
+                ? filePath.split('.')[2]
+                : fileType.toUpperCase().slice(0, 3)}
+            </Text>
+          </View>
+        )}
       </View>
     </View>
   );
@@ -122,9 +145,9 @@ const styles = StyleSheet.create({
     marginTop: 10,
     fontSize: 14,
     lineHeight: 20,
-    marginLeft: 5,
+    marginLeft: 12,
     marginRight: 5,
-    width: '20%',
+    width: '40%',
   },
   video: {
     width: '92%',

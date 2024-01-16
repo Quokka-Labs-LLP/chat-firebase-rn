@@ -10,68 +10,24 @@ import {
 } from 'react-native';
 import Video, {LoadError, VideoRef} from 'react-native-video';
 import Icon from 'react-native-vector-icons/FontAwesome5';
-// import VideoPlayerr from 'react-native-video-player';
+import VideoPlayerr from 'react-native-video-player';
 
-const VideoPlayer = ({item}) => {
+const VideoPlayer = ({Uri}) => {
   const [priloading, setpriloading] = useState(true);
-  const [pousevedio, setvediopouse] = useState(false);
-  const [player, setplayer] = useState();
-  const videoRef = useRef();
-
-  const [paused, setPaused] = useState(true);
-
-  const handleVideoEnd = () => {
-    setvediopouse(true);
-  };
-  const onError = error => {
-    console.log('error', error);
-    setvediopouse(false);
-  };
 
   return (
-    <View>
-      {priloading && (
-        <ActivityIndicator
-          animating
-          color={'white'}
-          size="large"
-          style={{
-            flex: 1,
-            position: 'absolute',
-            top: '50%',
-            left: '45%',
-          }}
-        />
-      )}
-
-      {/* <VideoPlayerr
-    video={{ uri: item.vedio }}
-    videoWidth={1600}
-    videoHeight={900}
-    thumbnail={{ uri: 'https://i.picsum.photos/id/866/1600/900.jpg' }}
-/> */}
-      <Video
-        repeat={true}
-        style={styles.video}
-        source={{uri: item.vedio, type: 'm3u8'}}
-        resizeMode="cover"
-        ref={videoRef}
-        playInBackground={false}
-        onLoadStart={() => {
-          setpriloading(true);
+    <View style={{flex: 1}}>
+      <VideoPlayerr
+        video={{uri: Uri}}
+        resizeMode={'cover'}
+        customStyles={{
+          controls: {
+            backgroundColor: 'rgba(0, 0, 0, 0.0)',
+          },
         }}
-        // paused={pousevedio}
-        onEnd={handleVideoEnd}
-        onLoad={() => {
-          setpriloading(false);
-        }}
-        bufferConfig={{
-          minBufferMs: 10000,
-          maxBufferMs: 80000,
-          bufferForPlaybackMs: 2000,
-          bufferForPlaybackAfterRebufferMs: 8000,
-        }}
-        onError={onError}
+        // videoWidth={1600}
+        // videoHeight={800}
+        thumbnail={{uri: 'https://i.picsum.photos/id/866/1600/900.jpg'}}
       />
     </View>
   );

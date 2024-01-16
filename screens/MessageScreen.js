@@ -13,6 +13,7 @@ import Icon from 'react-native-vector-icons/Ionicons';
 import {ScrollView} from 'react-native-virtualized-view';
 import firestore from '@react-native-firebase/firestore';
 import {getUsers} from './helper/hepler';
+import GetLetestMessage from './Components/GetLetestMessage';
 Icon.loadFont().then();
 
 const MessageScreen = ({user, navigation}) => {
@@ -68,7 +69,7 @@ const MessageScreen = ({user, navigation}) => {
                   <View style={styles.textArea}>
                     <Text style={styles.nameText}>{item.name}</Text>
                     <Text style={styles.msgTime}>{item.messageTime}</Text>
-                    <Text style={styles.msgContent}>{item.email}</Text>
+                    <GetLetestMessage userId={user.uid} recId={item.uid} />
                   </View>
                 </View>
               </TouchableOpacity>

@@ -2,6 +2,10 @@ import dayjs from 'dayjs';
 import firestore from '@react-native-firebase/firestore';
 import storagee from '@react-native-firebase/storage';
 import {storage} from '../Notification/NotificationController';
+import RNFetchBlob from 'rn-fetch-blob';
+let dirs = RNFetchBlob.fs.dirs;
+
+const db = firestore();
 
 // get all users
 export const getUsers = QuerySnapshot => {
@@ -46,11 +50,28 @@ export const getMessages = QuerySnapshot => {
         createdAt: docSanp.data()?.createdAt?.toDate(),
       };
     });
+    // console.log('allTheMsgs', allTheMsgs);
     return allTheMsgs;
   } catch (error) {
     console.log('docSanp==', error);
   }
 };
+// get letest messase for on-one message
+
+export const getLetestmsg = QuerySnapshot => {
+  return QuerySnapshot.data()?.latestMessage;
+};
+
+export const getunSeenmessgcount = (QuerySnapshot, userId) => {
+  try {
+    return QuerySnapshot.docs
+      .filter(docSnap => docSnap.data().sentBy !== userId)
+      .map(docSnap => docSnap.data());
+  } catch (error) {
+    console.log('docSanp==', error);
+  }
+};
+
 // update letest message on firestore
 export const updateLetestMessage = (from, uid, docid, newMessage) => {
   firestore()
@@ -76,6 +97,37 @@ export const updateMessages = (from, uid, docid, newMessage) => {
       createdAt: firestore.FieldValue.serverTimestamp(),
     });
 };
+
+export const updateSeenStatus = async (chatID, userid) => {
+  const db = firestore();
+  const chatsCollection = db.collection('Chats');
+  chatsCollection
+    .doc(chatID)
+    .collection('messages')
+    .where('sentTo', '==', userid)
+    .get()
+    .then(querySnapshot => {
+      if (querySnapshot.size > 1) {
+        const batch = db.batch();
+        querySnapshot.forEach(doc => {
+          const messageRef = chatsCollection
+            .doc(chatID)
+            .collection('messages')
+            .doc(doc.id);
+          batch.update(messageRef, {seenStatus: true});
+        });
+
+        // Commit the batch update
+        return batch.commit();
+      } else {
+        console.log('querySnapshot.length', querySnapshot.size);
+      }
+    })
+    .catch(error => {
+      console.error('Error updating messages:', error);
+    });
+};
+
 export const fileUploadd = async uploaduri => {
   const filename = uploaduri.substring(uploaduri.lastIndexOf('/') + 1);
   const task = storagee().ref(filename).putFile(uploaduri);
@@ -113,4 +165,23 @@ export const getUserName = async userid => {
 
 export const timeFormat = dateString => {
   return dayjs(dateString).locale('en').format('LT');
+};
+
+export const downloadManger = url => {
+  RNFetchBlob.config({
+    path: dirs.DocumentDir + '/chatrn/',
+    fileCache: true,
+    addAndroidDownloads: {
+      useDownloadManager: true,
+      notification: true,
+      path: dirs.DocumentDir + '/chatrn/',
+    },
+  })
+    .fetch('GET', url, {
+      //some headers ..
+    })
+    .then(res => {
+      // the path should be dirs.DocumentDir + 'path-to-file.anything'
+      console.log('The file saved to ', res.path());
+    });
 };

@@ -69,8 +69,14 @@ const GroupScreen = ({route, navigation}) => {
                   </View>
                   <View style={styles.textArea}>
                     <Text style={styles.nameText}>{item.name}</Text>
-                    <Text style={styles.msgContent}>
-                      {item.latestMessage.text}
+                    <Text numberOfLines={1} style={styles.msgContent}>
+                      {item.latestMessage?.text != ''
+                        ? item.latestMessage?.text
+                        : item.latestMessage?.image != ''
+                        ? 'image'
+                        : item.latestMessage?.file?.url != ''
+                        ? 'Doc'
+                        : ''}
                     </Text>
                   </View>
                 </View>

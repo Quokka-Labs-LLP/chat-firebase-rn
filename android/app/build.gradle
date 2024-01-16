@@ -81,6 +81,8 @@ android {
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
         versionName "1.0"
+        multiDexEnabled true
+
     }
     signingConfigs {
         debug {
@@ -116,6 +118,10 @@ dependencies {
     // The version of react-native is set by the React Native Gradle Plugin
     implementation("com.facebook.react:react-android")
     implementation("com.facebook.react:flipper-integration")
+    implementation project(':react-native-contacts')
+        implementation 'com.android.support:multidex:2.0.1'
+
+    implementation 'com.google.android.gms:play-services-location:21.0.1' // add this line
     implementation project(':react-native-vector-icons')
     if (hermesEnabled.toBoolean()) {
         implementation("com.facebook.react:hermes-android")
