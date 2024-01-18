@@ -3,7 +3,7 @@ import {View, Text} from 'react-native';
 import {getLetestmsg, getunSeenmessgcount} from '../helper/hepler';
 import firestore from '@react-native-firebase/firestore';
 
-const GetLetestMessage = ({userId, recId}) => {
+const GetLetestMessage = ({userId, recId, from}) => {
   const docid = recId > userId ? userId + '-' + recId : recId + '-' + userId;
   const [message, setmessage] = useState('');
   const [unseenCount, setanseencount] = useState([]);
@@ -19,6 +19,8 @@ const GetLetestMessage = ({userId, recId}) => {
           ? 'Doc'
           : letestMessage?.location
           ? 'Location'
+          : letestMessage?.contact
+          ? 'Contact'
           : '',
       );
     }
@@ -26,14 +28,14 @@ const GetLetestMessage = ({userId, recId}) => {
       setanseencount(getunSeenmessgcount(QuerySnapshot, userId));
     }
     const unsubscribetwo = firestore()
-      .collection('Chats')
-      .doc(docid)
+      .collection(from == 'chat' ? 'Chats' : 'THREADS')
+      .doc(from == 'chat' ? docid : recId)
       .collection('messages')
       .where('seenStatus', '!=', true)
       .onSnapshot(onResultone);
     const unsubscribe = firestore()
-      .collection('Chats')
-      .doc(docid)
+      .collection(from == 'chat' ? 'Chats' : 'THREADS')
+      .doc(from == 'chat' ? docid : recId)
       .onSnapshot(onResult);
     return () => {
       unsubscribe;

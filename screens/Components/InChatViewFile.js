@@ -2,20 +2,17 @@ import React, {useState} from 'react';
 import {
   View,
   Modal,
-  TouchableOpacity,
   StyleSheet,
-  Text,
   Dimensions,
   ActivityIndicator,
 } from 'react-native';
 import Pdf from 'react-native-pdf';
-import Video from 'react-native-video';
 import Icon from 'react-native-vector-icons/AntDesign';
+import DownloadButton from './DownloadButton';
 
 function InChatViewFile({props, visible, filee, onClose}) {
   const source = {uri: props.file.url, cache: true};
-  const [priloading, setpriloading] = useState(true);
-  const [player, setplayer] = useState();
+
   return (
     <Modal
       visible={visible}
@@ -23,16 +20,17 @@ function InChatViewFile({props, visible, filee, onClose}) {
       animationType="slide"
       style={{height: 600}}>
       <View style={styles.container}>
-        <View style={{padding: 20}}>
-          <Icon
-            name={'close-circle-sharp'}
-            onPress={onClose}
-            size={20}
-            color={'white'}
-          />
+        <View
+          style={{
+            padding: 20,
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+          }}>
+          <Icon name={'close'} onPress={onClose} size={25} color={'grey'} />
+          <DownloadButton filePath={source.uri} />
         </View>
 
-        {props.file.url ? (
+        {props.file.url && (
           <Pdf
             trustAllCerts={false}
             source={source}
@@ -50,41 +48,6 @@ function InChatViewFile({props, visible, filee, onClose}) {
             }}
             style={styles.pdf}
           />
-        ) : (
-          <View style={{flex: 1, justifyContent: 'center'}}>
-            {priloading && (
-              <ActivityIndicator
-                animating
-                color={'#009387'}
-                size="large"
-                style={{
-                  flex: 1,
-                  position: 'absolute',
-                  top: '50%',
-                  left: '45%',
-                }}
-              />
-            )}
-            <Video
-              style={styles.video}
-              source={{uri: props.vedio}}
-              resizeMode="cover"
-              ref={ref => setplayer(ref)}
-              onLoadStart={() => {
-                setpriloading(true);
-              }}
-              onLoad={() => {
-                setpriloading(false);
-              }}
-              bufferConfig={{
-                minBufferMs: 15000,
-                maxBufferMs: 50000,
-                bufferForPlaybackMs: 2500,
-                bufferForPlaybackAfterRebufferMs: 5000,
-              }}
-              filter="CIPhotoEffectFade"
-            />
-          </View>
         )}
       </View>
     </Modal>

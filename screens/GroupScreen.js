@@ -13,16 +13,19 @@ import {
 import firestore from '@react-native-firebase/firestore';
 import Icon from 'react-native-vector-icons/Ionicons';
 import {getAllGroups} from './helper/hepler';
+import GetLetestMessage from './Components/GetLetestMessage';
 const GroupScreen = ({route, navigation}) => {
   const [groups, setgroups] = useState(null);
 
   useEffect(() => {
     function onResult(QuerySnapshot) {
+      console.log('QuerySnapshot', QuerySnapshot);
       setgroups(getAllGroups(QuerySnapshot));
     }
     const unsubscribe = firestore()
       .collection('THREADS')
       .where('members', 'array-contains', route.params.userid)
+      // .orderBy('latestMessage.createdAt', 'desc') // Order by the nested createdAt field in descending order
       .onSnapshot(onResult);
     return () => unsubscribe;
   }, []);
@@ -69,15 +72,12 @@ const GroupScreen = ({route, navigation}) => {
                   </View>
                   <View style={styles.textArea}>
                     <Text style={styles.nameText}>{item.name}</Text>
-                    <Text numberOfLines={1} style={styles.msgContent}>
-                      {item.latestMessage?.text != ''
-                        ? item.latestMessage?.text
-                        : item.latestMessage?.image != ''
-                        ? 'image'
-                        : item.latestMessage?.file?.url != ''
-                        ? 'Doc'
-                        : ''}
-                    </Text>
+
+                    <GetLetestMessage
+                      userId={route.params.userid}
+                      recId={item.threadId}
+                      from={'group'}
+                    />
                   </View>
                 </View>
               </TouchableOpacity>

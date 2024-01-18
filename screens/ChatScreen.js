@@ -19,9 +19,14 @@ import {
   getFcmTokens,
   getMessages,
   updateSeenStatus,
-  downloadManger,
+  updateseenstatusgroup,
 } from './helper/hepler';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
+import {
+  downloadFileFromurl,
+  checkIfFileExists,
+  getFileSizeFromURL,
+} from './helper/useFileStystem';
 import {GiftedChat, Bubble, InputToolbar, Send} from 'react-native-gifted-chat';
 import firestore from '@react-native-firebase/firestore';
 import DocumentPicker from 'react-native-document-picker';
@@ -33,6 +38,7 @@ import {storage} from './Notification/NotificationController';
 import FileSelection from './Components/FileSelection';
 import ShareLoctionCom from './Components/ShareLoctionCom';
 import ShareContect from './Components/ShareContect';
+import DownloadButton from './Components/DownloadButton';
 const ChatScreen = ({user, route, navigation}) => {
   const [messages, setMessages] = useState([]);
   const {uid, from, fcmToken, item} = route.params;
@@ -55,7 +61,13 @@ const ChatScreen = ({user, route, navigation}) => {
   useEffect(() => {
     const docid = uid > user.uid ? user.uid + '-' + uid : uid + '-' + user.uid;
     function onResult(QuerySnapshot) {
+      console.log(QuerySnapshot);
       setMessages(getMessages(QuerySnapshot));
+      if (from !== 'group') {
+        updateSeenStatus(docid, user.uid);
+      } else {
+        updateseenstatusgroup(uid, user.uid);
+      }
     }
     const unsubscribe = firestore()
       .collection(from == 'group' ? 'THREADS' : 'Chats')
@@ -63,11 +75,13 @@ const ChatScreen = ({user, route, navigation}) => {
       .collection('messages')
       .orderBy('createdAt', 'desc')
       .onSnapshot(onResult);
-    if (from !== 'group') {
-      updateSeenStatus(docid, user.uid);
-    }
-    return () => unsubscribe;
+
+    return () => {
+      console.log('Cleanup function executed');
+      unsubscribe();
+    };
   }, []);
+
   useEffect(() => {
     function onResult(QuerySnapshot) {
       setfcmTokens(getFcmTokens(QuerySnapshot));
@@ -104,7 +118,7 @@ const ChatScreen = ({user, route, navigation}) => {
               <Icon
                 name="person-add-outline"
                 size={25}
-                color="grey"
+                color="white"
                 onPress={() => setshowAddUser(!showAddUser)}
                 style={{marginRight: 10}}
               />
@@ -524,15 +538,7 @@ const ChatScreen = ({user, route, navigation}) => {
                   />
                 ) : (
                   currentMessage.vedio && (
-                    <Icon
-                      name="arrow-down-sharp"
-                      onPress={() => {
-                        downloadManger(currentMessage.vedio);
-                      }}
-                      size={20}
-                      color={'grey'}
-                      style={{padding: 4}}
-                    />
+                    <DownloadButton filePath={currentMessage.vedio} />
                   )
                 )}
               </View>

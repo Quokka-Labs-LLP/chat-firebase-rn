@@ -8,25 +8,31 @@ import {
   ViewStyle,
   ActivityIndicator,
 } from 'react-native';
-import Video, {LoadError, VideoRef} from 'react-native-video';
-import Icon from 'react-native-vector-icons/FontAwesome5';
+import {checkIfFileExists, getLocalUrl} from '../helper/useFileStystem';
 import VideoPlayerr from 'react-native-video-player';
 
 const VideoPlayer = ({Uri}) => {
+  const [vediouri, setvediouri] = useState(Uri);
   const [priloading, setpriloading] = useState(true);
-
+  useEffect(() => {
+    checkIfFileExists(Uri).then(res => {
+      res &&
+        getLocalUrl(Uri).then(res => {
+          setvediouri(res);
+        });
+    });
+    // console.log(filePath);
+  }, []);
   return (
     <View style={{flex: 1}}>
       <VideoPlayerr
-        video={{uri: Uri}}
+        video={{uri: vediouri}}
         resizeMode={'cover'}
         customStyles={{
           controls: {
             backgroundColor: 'rgba(0, 0, 0, 0.0)',
           },
         }}
-        // videoWidth={1600}
-        // videoHeight={800}
         thumbnail={{uri: 'https://i.picsum.photos/id/866/1600/900.jpg'}}
       />
     </View>

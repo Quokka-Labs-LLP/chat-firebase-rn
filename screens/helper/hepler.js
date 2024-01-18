@@ -59,6 +59,7 @@ export const getMessages = QuerySnapshot => {
 // get letest messase for on-one message
 
 export const getLetestmsg = QuerySnapshot => {
+  console.log(QuerySnapshot.data()?.latestMessage);
   return QuerySnapshot.data()?.latestMessage;
 };
 
@@ -95,6 +96,36 @@ export const updateMessages = (from, uid, docid, newMessage) => {
     .add({
       ...newMessage,
       createdAt: firestore.FieldValue.serverTimestamp(),
+    });
+};
+
+export const updateseenstatusgroup = async (chatID, userid) => {
+  const db = firestore();
+  const chatsCollection = db.collection('THREADS');
+  chatsCollection
+    .doc(chatID)
+    .collection('messages')
+    .where('sentBy', '!=', userid)
+    .get()
+    .then(querySnapshot => {
+      if (querySnapshot.size > 1) {
+        const batch = db.batch();
+        querySnapshot.forEach(doc => {
+          const messageRef = chatsCollection
+            .doc(chatID)
+            .collection('messages')
+            .doc(doc.id);
+          batch.update(messageRef, {seenStatus: true});
+        });
+
+        // Commit the batch update
+        return batch.commit();
+      } else {
+        console.log('querySnapshot.length', querySnapshot.size);
+      }
+    })
+    .catch(error => {
+      console.error('Error updating messages:', error);
     });
 };
 
@@ -165,23 +196,4 @@ export const getUserName = async userid => {
 
 export const timeFormat = dateString => {
   return dayjs(dateString).locale('en').format('LT');
-};
-
-export const downloadManger = url => {
-  RNFetchBlob.config({
-    path: dirs.DocumentDir + '/chatrn/',
-    fileCache: true,
-    addAndroidDownloads: {
-      useDownloadManager: true,
-      notification: true,
-      path: dirs.DocumentDir + '/chatrn/',
-    },
-  })
-    .fetch('GET', url, {
-      //some headers ..
-    })
-    .then(res => {
-      // the path should be dirs.DocumentDir + 'path-to-file.anything'
-      console.log('The file saved to ', res.path());
-    });
 };

@@ -69,7 +69,11 @@ const MessageScreen = ({user, navigation}) => {
                   <View style={styles.textArea}>
                     <Text style={styles.nameText}>{item.name}</Text>
                     <Text style={styles.msgTime}>{item.messageTime}</Text>
-                    <GetLetestMessage userId={user.uid} recId={item.uid} />
+                    <GetLetestMessage
+                      userId={user.uid}
+                      recId={item.uid}
+                      from={'chat'}
+                    />
                   </View>
                 </View>
               </TouchableOpacity>
