@@ -22,11 +22,7 @@ import {
   updateseenstatusgroup,
 } from './helper/hepler';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
-import {
-  downloadFileFromurl,
-  checkIfFileExists,
-  getFileSizeFromURL,
-} from './helper/useFileStystem';
+
 import {GiftedChat, Bubble, InputToolbar, Send} from 'react-native-gifted-chat';
 import firestore from '@react-native-firebase/firestore';
 import DocumentPicker from 'react-native-document-picker';
@@ -61,7 +57,6 @@ const ChatScreen = ({user, route, navigation}) => {
   useEffect(() => {
     const docid = uid > user.uid ? user.uid + '-' + uid : uid + '-' + user.uid;
     function onResult(QuerySnapshot) {
-      console.log(QuerySnapshot);
       setMessages(getMessages(QuerySnapshot));
       if (from !== 'group') {
         updateSeenStatus(docid, user.uid);
@@ -75,9 +70,7 @@ const ChatScreen = ({user, route, navigation}) => {
       .collection('messages')
       .orderBy('createdAt', 'desc')
       .onSnapshot(onResult);
-
     return () => {
-      console.log('Cleanup function executed');
       unsubscribe();
     };
   }, []);
@@ -152,7 +145,6 @@ const ChatScreen = ({user, route, navigation}) => {
         getUrl(uploaduri)
           .then(url => {
             setuplodedimagerul(url);
-            // console.log('file uploaded url is ', url);
             messages[0]._id =
               messages[0]._id + '-' + Math.floor(Date.now() / 1000);
             onSend(messages, uploaduri, url);
@@ -168,7 +160,6 @@ const ChatScreen = ({user, route, navigation}) => {
       console.error(e);
     }
   };
-
   const _pickDocument = async type => {
     if (type == 'Location') {
       setvisibleFileSlection(!visibleFileSlection);
@@ -200,9 +191,9 @@ const ChatScreen = ({user, route, navigation}) => {
       if (updatedArray.length == 0) {
         return;
       }
-
+      console.log('updatedArray', updatedArray);
       if (
-        ['.png', '.jpg', '.mp4', '.mov'].some(extension =>
+        ['.png', '.jpg', '.mp4', '.mov', '.webp'].some(extension =>
           updatedArray[0].fileCopyUri.includes(extension),
         )
       ) {
@@ -210,6 +201,7 @@ const ChatScreen = ({user, route, navigation}) => {
         setvisibleFileSlection(!visibleFileSlection);
         setIsAttachImage(true);
       } else {
+        console.log('setselectedfiles', setselectedfiles);
         setselectedfiles(updatedArray);
         setvisibleFileSlection(!visibleFileSlection);
         setFilePath(updatedArray[0].fileCopyUri);
@@ -237,7 +229,7 @@ const ChatScreen = ({user, route, navigation}) => {
             name="attach"
             style={styles.paperClip}
             size={28}
-            color="grey"
+            color="black"
           />
         </TouchableOpacity>
         {!loding ? (
@@ -248,7 +240,7 @@ const ChatScreen = ({user, route, navigation}) => {
                 name="send"
                 style={styles.sendButton}
                 size={25}
-                color="#009387"
+                color="#7961C1"
               />
             </View>
           </Send>
@@ -346,14 +338,13 @@ const ChatScreen = ({user, route, navigation}) => {
     shareContect,
     selectedContect,
   ]);
-
+  console.log('fcmTokenss', fcmTokenss);
   const checkPoint = useCallback(
     async (messages = []) => {
       setIsAttachImage(false);
       setIsAttachFile(false);
       if (selecedfiles.length == 0) {
         onSend(messages, '', '');
-        console.log('only test colled');
       } else if (selecedfiles.length > 0) {
         try {
           for (const [index, file] of selecedfiles.entries()) {
@@ -375,7 +366,6 @@ const ChatScreen = ({user, route, navigation}) => {
         sharLocation != '' ||
         selectedContect != ''
       ) {
-        console.log('selectedContect 1 ', selectedContect);
         setIsAttachImage(false);
         var newMessage = {
           ...messageToSend,
@@ -440,6 +430,7 @@ const ChatScreen = ({user, route, navigation}) => {
       username,
       sharLocation,
       selectedContect,
+      fcmTokenss,
     ],
   );
   //
@@ -460,7 +451,7 @@ const ChatScreen = ({user, route, navigation}) => {
               ...styles.fileContainer,
               backgroundColor:
                 props.currentMessage.user._id === user.uid
-                  ? '#009387'
+                  ? '#7961C1'
                   : 'lightgrey',
               borderBottomLeftRadius:
                 props.currentMessage.user._id === user.uid ? 15 : 5,
@@ -477,10 +468,6 @@ const ChatScreen = ({user, route, navigation}) => {
               if (currentMessage.location) {
                 Linking.openURL(currentMessage.location);
               } else if (currentMessage.contact) {
-                console.log(
-                  'currentMessage.contact',
-                  currentMessage.contact.phone,
-                );
                 if (Platform.OS !== 'android') {
                   phoneNumber = `telprompt:${currentMessage.contact.phone}`;
                 } else {
@@ -524,7 +511,7 @@ const ChatScreen = ({user, route, navigation}) => {
                       color:
                         props.currentMessage.user._id == user.uid
                           ? 'white'
-                          : 'grey',
+                          : 'black',
                     },
                   ]}>
                   {timeFormat(currentMessage.createdAt)}
@@ -553,7 +540,7 @@ const ChatScreen = ({user, route, navigation}) => {
           renderUsernameOnMessage={from == 'group' ? true : false}
           wrapperStyle={{
             right: {
-              backgroundColor: '#009387',
+              backgroundColor: '#7961C1',
             },
             left: {
               backgroundColor: 'lightgrey',
@@ -609,7 +596,7 @@ const ChatScreen = ({user, route, navigation}) => {
             <InputToolbar
               {...props}
               containerStyle={{
-                borderTopColor: '#009387',
+                borderTopColor: '#7961C1',
               }}
               textInputStyle={{
                 color: 'black',
@@ -662,7 +649,6 @@ const ChatScreen = ({user, route, navigation}) => {
           visible={shareContect}
           onClose={() => setshareContect(false)}
           onSelect={val => {
-            console.log(val);
             setshareContect(false);
             val && setselectedContect(val);
           }}
@@ -772,12 +758,12 @@ export const styles = StyleSheet.create({
     padding: 8,
   },
   chatFooter: {
-    backgroundColor: '#009387',
+    backgroundColor: '#7961C1',
     flexDirection: 'row',
     padding: 7,
   },
   textFooterChat: {
-    backgroundColor: 'lightgrey',
+    backgroundColor: 'lightblack',
     borderRadius: 40,
     color: 'white',
     width: 20,
@@ -789,7 +775,7 @@ export const styles = StyleSheet.create({
     margin: 4,
     fontSize: 12,
     backgroundColor: 'transparent',
-    color: 'grey',
+    color: 'black',
   },
   msgTimetextCon: {
     flexDirection: 'row',

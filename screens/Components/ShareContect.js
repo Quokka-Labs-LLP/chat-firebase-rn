@@ -28,7 +28,6 @@ function ShareContect({visible, onClose, onSelect}) {
       buttonPositive: 'Please accept bare mortal',
     })
       .then(res => {
-        console.log('Permission: ', res);
         Contacts.getAll()
           .then(contacts => {
             // work with contacts
@@ -70,7 +69,7 @@ function ShareContect({visible, onClose, onSelect}) {
           item?.phoneNumbers[0]?.number == selected?.phoneNumbers[0]?.number ? (
             <Icon
               name="checkmark-circle"
-              color={'#009387'}
+              color={'#7961C1'}
               size={25}
               onPress={onClose}
             />
@@ -97,7 +96,7 @@ function ShareContect({visible, onClose, onSelect}) {
             <View
               style={{
                 width: '80%',
-                height: '83%',
+                height: '100%',
                 justifyContent: 'center',
                 alignSelf: 'center',
                 marginTop: 20,
@@ -111,7 +110,7 @@ function ShareContect({visible, onClose, onSelect}) {
               />
             </View>
 
-            <TouchableOpacity
+            {/* <TouchableOpacity
               onPress={() => {
                 onSelect(
                   selected && {
@@ -122,7 +121,34 @@ function ShareContect({visible, onClose, onSelect}) {
               }}
               style={{alignSelf: 'center', position: 'absolute', bottom: '5%'}}>
               <Text style={styles.shareLocText}>Share Contact</Text>
-            </TouchableOpacity>
+            </TouchableOpacity> */}
+            <View
+              style={{
+                backgroundColor: '#7961C1',
+                width: 50,
+                height: 50,
+                position: 'absolute',
+                bottom: 20,
+                alignSelf: 'flex-end',
+                right: 30,
+                borderRadius: 40,
+                justifyContent: 'center',
+              }}>
+              <Icon
+                name="checkmark-sharp"
+                onPress={() => {
+                  onSelect(
+                    selected && {
+                      name: selected?.givenName,
+                      phone: selected.phoneNumbers[0]?.number,
+                    },
+                  );
+                }}
+                size={25}
+                color="white"
+                style={{alignSelf: 'center'}}
+              />
+            </View>
           </View>
         </View>
       </TouchableWithoutFeedback>
@@ -133,14 +159,16 @@ export default ShareContect;
 const styles = StyleSheet.create({
   container: {
     height: '70%',
-    width: '95%',
+    width: '100%',
     marginTop: 25,
     backgroundColor: 'white',
     borderRadius: 40,
     alignSelf: 'center',
+    position: 'absolute',
+    bottom: 0,
   },
   shareLocText: {
-    color: '#009387',
+    color: '#7961C1',
     fontWeight: 'bold',
     fontSize: 16,
     alignSelf: 'center',
@@ -149,7 +177,7 @@ const styles = StyleSheet.create({
   shareLocBottom: {
     width: '80%',
     height: 1,
-    backgroundColor: '#009387',
+    backgroundColor: '#7961C1',
     alignSelf: 'center',
     marginTop: 20,
   },
@@ -180,7 +208,7 @@ const styles = StyleSheet.create({
   },
   txt: {
     fontSize: 18,
-    color: 'black',
+    color: '#7961C1',
   },
   name: {
     fontSize: 16,

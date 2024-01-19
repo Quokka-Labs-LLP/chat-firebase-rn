@@ -5,7 +5,6 @@ const DownloadDir = dirs.DownloadDir;
 
 export const getFileSizeFromURL = async url => {
   const filename = url.split('?')[0].split('/');
-  console.log(filename[filename.length - 1]);
   try {
     const response = await fetch(url, {method: 'HEAD'});
     // Check if the response status is OK (200)
@@ -14,7 +13,6 @@ export const getFileSizeFromURL = async url => {
       const fileSizeInBytes = parseInt(contentLength, 10);
 
       if (!isNaN(fileSizeInBytes)) {
-        console.log('fileSizeInBytes', fileSizeInBytes);
         return fileSizeInBytes;
       } else {
         console.error('Invalid Content-Length header:', contentLength);
@@ -58,7 +56,6 @@ export const getAvailableSpace = async () => {
 };
 // Check if file already exists
 export const checkIfFileExists = async filePath => {
-  console.log(filePath);
   const filename = filePath.split('?')[0].split('/');
   const path = `${DownloadDir}/${filename[filename.length - 1]}`;
   try {
@@ -98,7 +95,6 @@ export const downloadFileFromurl = async url => {
         },
       }).fetch('GET', url);
       if (res?.data) {
-        console.log(res?.data);
         return {
           status: 200,
           msg: `File downloaded to: ${res?.data}`,

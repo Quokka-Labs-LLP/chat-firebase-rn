@@ -80,7 +80,7 @@ const SigninScreen = ({navigation}) => {
             autoCapitalize="none"
             value={email}
             onChangeText={setEmail}
-            placeholderTextColor={'grey'}
+            placeholderTextColor={'black'}
           />
         </View>
         <Text
@@ -101,7 +101,7 @@ const SigninScreen = ({navigation}) => {
             value={password}
             maxLength={10}
             onChangeText={setPassword}
-            placeholderTextColor={'grey'}
+            placeholderTextColor={'black'}
           />
           <TouchableOpacity onPress={updateSecureText}>
             {data.secureTextEntry ? <Text>Show</Text> : <Text>Hide</Text>}
@@ -113,7 +113,7 @@ const SigninScreen = ({navigation}) => {
           style={[
             styles.signIn,
             {
-              borderColor: '#009387',
+              borderColor: '#7961C1',
               borderWidth: 1,
               marginTop: 15,
             },
@@ -122,7 +122,7 @@ const SigninScreen = ({navigation}) => {
             style={[
               styles.textSign,
               {
-                color: '#009387',
+                color: '#7961C1',
               },
             ]}>
             {' '}
@@ -147,7 +147,7 @@ const height_logo = height * 0.28;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#009387',
+    backgroundColor: '#7961C1',
   },
   header: {
     flex: 1,

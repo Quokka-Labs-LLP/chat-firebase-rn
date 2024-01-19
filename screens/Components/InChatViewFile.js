@@ -26,7 +26,7 @@ function InChatViewFile({props, visible, filee, onClose}) {
             flexDirection: 'row',
             justifyContent: 'space-between',
           }}>
-          <Icon name={'close'} onPress={onClose} size={25} color={'grey'} />
+          <Icon name={'close'} onPress={onClose} size={25} color={'black'} />
           <DownloadButton filePath={source.uri} />
         </View>
 

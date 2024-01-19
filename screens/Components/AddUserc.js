@@ -87,7 +87,7 @@ function AddUserc({visible, props, groupId, onClose}) {
         return (
           <Icon
             name="checkmark-circle"
-            color={'#009387'}
+            color={'#7961C1'}
             size={30}
             onPress={onClose}
           />
@@ -173,7 +173,7 @@ const styles = StyleSheet.create({
     height: 50,
     borderRadius: 25,
     alignSelf: 'center',
-    backgroundColor: '#009387',
+    backgroundColor: '#7961C1',
     justifyContent: 'center',
   },
   textArea: {
@@ -212,7 +212,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: 25,
     right: 30,
-    backgroundColor: '#009387',
+    backgroundColor: '#7961C1',
     padding: 10,
     borderRadius: 5,
   },

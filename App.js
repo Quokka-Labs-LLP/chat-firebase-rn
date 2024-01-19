@@ -15,7 +15,6 @@ import {
   View,
   Text,
   TextInput,
-  Touchable,
   TouchableOpacity,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
@@ -28,7 +27,7 @@ const Stack = createNativeStackNavigator();
 <Stack.Navigator
   screenOptions={{
     headerStyle: {
-      backgroundColor: '#009387',
+      backgroundColor: '#7961C1',
     },
     headerTintColor: '#fff',
     headerTitleStyle: {
@@ -60,14 +59,14 @@ function TheTab({user, setvisiblee}) {
           return <Icon name={iconName} size={size} color={color} />;
         },
         headerStyle: {
-          backgroundColor: '#009387',
+          backgroundColor: '#7961C1',
         },
         headerTintColor: '#fff',
         headerTitleStyle: {
           fontWeight: 'bold',
         },
-        tabBarActiveTintColor: '#009387',
-        tabBarInactiveTintColor: 'grey',
+        tabBarActiveTintColor: '#7961C1',
+        tabBarInactiveTintColor: 'black',
         tabBarLabelStyle: {paddingBottom: 5, fontSize: 10, fontWeight: '900'},
       })}>
       <Tab.Screen name="Messages">
@@ -82,17 +81,17 @@ function TheTab({user, setvisiblee}) {
               initialParams={{userid: user.uid}}
               options={{
                 title: 'Group',
-                headerRight: () => (
-                  <Icon
-                    name="add"
-                    onPress={() => setvisiblee()}
-                    size={30}
-                    color="white"
-                    style={{marginRight: 10}}
-                  />
-                ),
+                // headerRight: () => (
+                //   <Icon
+                //     name="add"
+                //     onPress={() => setvisiblee()}
+                //     size={30}
+                //     color="white"
+                //     style={{marginRight: 10}}
+                //   />
+                // ),
                 headerStyle: {
-                  backgroundColor: '#009387',
+                  backgroundColor: '#7961C1',
                 },
                 headerTintColor: '#fff',
                 headerTitleStyle: {
@@ -113,8 +112,8 @@ function TheTab({user, setvisiblee}) {
 
 const App = () => {
   const [user, setUser] = useState('');
-  const [visible, setvisible] = useState(false);
-  const [channelName, setChannelName] = useState('');
+  // const [visible, setvisible] = useState(false);
+  // const [channelName, setChannelName] = useState('');
 
   useEffect(() => {
     const userCheck = auth().onAuthStateChanged(userExist => {
@@ -129,50 +128,50 @@ const App = () => {
     };
   }, []);
 
-  const createRoom = () => {
-    if (channelName.length > 0) {
-      const createGroupAndAddUser = async (channelName, userId) => {
-        try {
-          // Create a group
-          const groupRef = await firestore()
-            .collection('THREADS')
-            .add({
-              name: channelName,
-              latestMessage: {
-                text: `You have joined the room ${channelName}.`,
-                createdAt: new Date(),
-              },
-              members: [userId],
-              grupecreatedAt: new Date(),
-              createdBy: userId,
-            });
+  // const createRoom = () => {
+  //   if (channelName.length > 0) {
+  //     const createGroupAndAddUser = async (channelName, userId) => {
+  //       try {
+  //         // Create a group
+  //         const groupRef = await firestore()
+  //           .collection('THREADS')
+  //           .add({
+  //             name: channelName,
+  //             latestMessage: {
+  //               text: `You have joined the room ${channelName}.`,
+  //               createdAt: new Date(),
+  //             },
+  //             members: [userId],
+  //             grupecreatedAt: new Date(),
+  //             createdBy: userId,
+  //           });
 
-          const groupId = groupRef.id;
-          // Add a system message to the group
-          await groupRef.collection('messages').add({
-            _id: new Date(),
-            text: `You have joined the ${channelName}.`,
-            createdAt: new Date(),
-            system: true,
-          });
-          return groupId;
-        } catch (error) {
-          console.error('Error creating group and adding user:', error);
-          return null;
-        }
-      };
-      createGroupAndAddUser(channelName, user.uid);
-      setChannelName('');
-      setvisible(!visible);
-    }
-  };
+  //         const groupId = groupRef.id;
+  //         // Add a system message to the group
+  //         await groupRef.collection('messages').add({
+  //           _id: new Date(),
+  //           text: `You have joined the ${channelName}.`,
+  //           createdAt: new Date(),
+  //           system: true,
+  //         });
+  //         return groupId;
+  //       } catch (error) {
+  //         console.error('Error creating group and adding user:', error);
+  //         return null;
+  //       }
+  //     };
+  //     createGroupAndAddUser(channelName, user.uid);
+  //     setChannelName('');
+  //     setvisible(!visible);
+  //   }
+  // };
   return (
     <>
       <NavigationContainer>
         <Stack.Navigator
           screenOptions={{
             headerStyle: {
-              backgroundColor: '#009387',
+              backgroundColor: '#7961C1',
             },
             headerTintColor: '#fff',
             headerTitleStyle: {
@@ -186,8 +185,8 @@ const App = () => {
                   <TheTab
                     {...props}
                     user={user}
-                    visiblee={visible}
-                    setvisiblee={() => setvisible(!visible)}
+                    // visiblee={visible}
+                    // setvisiblee={() => setvisible(!visible)}
                   />
                 )}
               </Stack.Screen>
@@ -232,24 +231,35 @@ const App = () => {
         </Stack.Navigator>
         <NotificationController />
       </NavigationContainer>
-      <Modal
+      {/* <Modal
         visible={visible}
         onRequestClose={() => setvisible(!visible)}
+        transparent={true}
         animationType="slide"
-        style={{height: 600}}>
-        <View style={{flex: 1, backgroundColor: 'white'}}>
+        style={{height: 400}}>
+        <View
+          style={{
+            height: '60%',
+            width: '97%',
+            backgroundColor: 'white',
+            position: 'absolute',
+            bottom: 0,
+            alignSelf: 'center',
+            borderTopLeftRadius: 40,
+            borderTopRightRadius: 40,
+          }}>
           <Icon
             name="close-circle-outline"
-            color={'#009387'}
+            color={'#7961C1'}
             size={30}
             onPress={() => setvisible(!visible)}
             style={{alignSelf: 'flex-end', padding: 10}}
           />
           <View style={styles.innerContainer}>
-            <Text style={styles.title}>Create a new channel</Text>
+            <Text style={styles.title}>Create a new Group</Text>
             <TextInput
-              placeholder="Channel Name"
-              placeholderTextColor={'#009387'}
+              placeholder="Group Name"
+              placeholderTextColor={'black'}
               maxLength={12}
               value={channelName}
               onChangeText={text => setChannelName(text)}
@@ -264,7 +274,7 @@ const App = () => {
             </TouchableOpacity>
           </View>
         </View>
-      </Modal>
+      </Modal> */}
     </>
   );
 };
@@ -289,27 +299,28 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 24,
     marginBottom: 10,
-    color: '#009387',
+    color: '#7961C1',
   },
   buttonLabel: {
     fontSize: 22,
-    color: 'white',
+    color: '#7961C1',
     alignSelf: 'center',
   },
   buttonStyle: {
-    backgroundColor: '#009387',
+    borderColor: '#7961C1',
     height: 50,
     width: '90%',
     alignSelf: 'center',
     marginTop: 20,
     justifyContent: 'center',
+    borderWidth: 1,
   },
   inputStyle: {
     height: 54,
     width: '90%',
     alignSelf: 'center',
     borderBottomWidth: 1,
-    borderBottomColor: '#009387',
+    borderBottomColor: '#7961C1',
     color: 'black',
   },
 });

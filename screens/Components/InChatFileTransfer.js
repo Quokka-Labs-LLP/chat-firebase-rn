@@ -81,21 +81,21 @@ const InChatFileTransfer = ({filePath}) => {
             onPress={() => onPressPlayButton(filePath)}
             name={playaudio ? 'pause' : 'play'}
             size={25}
-            color={'grey'}
+            color={'black'}
           />
         ) : isLocation ? (
           <Ionicons
             style={{alignSelf: 'center', padding: 5}}
             name={'location-outline'}
             size={25}
-            color={'grey'}
+            color={'black'}
           />
         ) : isContect ? (
           <Icon
             style={{alignSelf: 'center', padding: 5}}
             name={'user'}
             size={30}
-            color={'grey'}
+            color={'black'}
           />
         ) : (
           fileType !== 'mp4' && (
@@ -103,7 +103,7 @@ const InChatFileTransfer = ({filePath}) => {
               style={{alignSelf: 'center', padding: 5}}
               name={'pdffile1'}
               size={25}
-              color={'grey'}
+              color={'black'}
             />
           )
         )}

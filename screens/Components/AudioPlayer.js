@@ -73,7 +73,7 @@ const AudioPlayer = ({item}) => {
         style={{
           height: 50,
           width: 50,
-          backgroundColor: '#009387',
+          backgroundColor: '#7961C1',
           margin: 3,
           borderRadius: 40,
           justifyContent: 'center',
@@ -93,7 +93,7 @@ const AudioPlayer = ({item}) => {
           setplayingurl(item._id);
           onPressPlayButton(item.file.url, item._id);
         }}
-        color={'#009387'}
+        color={'#7961C1'}
       />
     </View>
   );

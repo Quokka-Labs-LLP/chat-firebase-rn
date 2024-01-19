@@ -147,7 +147,7 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
   },
   shareLocText: {
-    color: '#009387',
+    color: '#7961C1',
     fontWeight: 'bold',
     fontSize: 16,
     alignSelf: 'center',
@@ -156,7 +156,7 @@ const styles = StyleSheet.create({
   shareLocBottom: {
     width: '80%',
     height: 1,
-    backgroundColor: '#009387',
+    backgroundColor: '#7961C1',
     alignSelf: 'center',
     marginTop: 20,
   },

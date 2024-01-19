@@ -1,15 +1,22 @@
 import React, {useEffect, useState} from 'react';
 import {View, Text} from 'react-native';
-import {getLetestmsg, getunSeenmessgcount} from '../helper/hepler';
+import {
+  getLetestmsg,
+  getunSeenmessgcount,
+  timeFormatone,
+  timeFormat,
+} from '../helper/hepler';
 import firestore from '@react-native-firebase/firestore';
 
 const GetLetestMessage = ({userId, recId, from}) => {
   const docid = recId > userId ? userId + '-' + recId : recId + '-' + userId;
   const [message, setmessage] = useState('');
+  const [msgtime, setmsgtime] = useState('');
   const [unseenCount, setanseencount] = useState([]);
   useEffect(() => {
     function onResult(QuerySnapshot) {
       const letestMessage = getLetestmsg(QuerySnapshot);
+      setmsgtime(timeFormatone(letestMessage?.createdAt));
       setmessage(
         letestMessage?.text
           ? letestMessage?.text
@@ -52,26 +59,32 @@ const GetLetestMessage = ({userId, recId, from}) => {
       <Text
         numberOfLines={1}
         style={{
-          color: unseenCount.length > 0 ? '#009387' : 'black',
-          fontWeight: unseenCount.length > 0 ? 'bold' : '600',
+          color: 'black',
           paddingTop: 4,
           width: '80%',
+          fontSize: 12,
         }}>
         {message}
       </Text>
+
       {unseenCount.length > 0 && (
-        <View
-          style={{
-            color: 'white',
-            backgroundColor: '#009387',
-            borderRadius: 20,
-            height: 20,
-            width: 20,
-            alignSelf: 'center',
-          }}>
-          <Text style={{color: 'white', alignSelf: 'center'}}>
-            {unseenCount.length}
+        <View style={{marginTop: -20}}>
+          <Text style={{color: '#7961C1', fontSize: 12, padding: 3}}>
+            {msgtime}
           </Text>
+          <View
+            style={{
+              color: 'white',
+              backgroundColor: '#7961C1',
+              borderRadius: 20,
+              height: 20,
+              width: 20,
+              alignSelf: 'center',
+            }}>
+            <Text style={{color: 'white', alignSelf: 'center'}}>
+              {unseenCount.length}
+            </Text>
+          </View>
         </View>
       )}
     </View>

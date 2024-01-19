@@ -130,13 +130,13 @@ const About = ({navigation, route, user}) => {
           style={{
             height: 50,
             width: '93%',
-            borderColor: '#009387',
+            borderColor: '#7961C1',
             alignSelf: 'center',
             marginTop: 20,
             borderWidth: 1,
             justifyContent: 'center',
           }}>
-          <Text style={{alignSelf: 'center', color: '#009387'}}>
+          <Text style={{alignSelf: 'center', color: '#7961C1'}}>
             Exit Group
           </Text>
         </TouchableOpacity>
@@ -146,13 +146,13 @@ const About = ({navigation, route, user}) => {
             style={{
               height: 50,
               width: '93%',
-              borderColor: '#009387',
+              borderColor: '#7961C1',
               alignSelf: 'center',
               marginTop: 20,
               borderWidth: 1,
               justifyContent: 'center',
             }}>
-            <Text style={{alignSelf: 'center', color: '#009387'}}>
+            <Text style={{alignSelf: 'center', color: '#7961C1'}}>
               Delete Group
             </Text>
           </TouchableOpacity>
@@ -192,7 +192,7 @@ const About = ({navigation, route, user}) => {
         type: [DocumentPicker.types.images],
         copyTo: 'documentDirectory',
         mode: 'import',
-        allowMultiSelection: true,
+        allowMultiSelection: false,
       });
       const fileUri = result[0].fileCopyUri;
       if (!fileUri) {
@@ -229,13 +229,7 @@ const About = ({navigation, route, user}) => {
             color={'white'}
           />
         )}
-        {lodingtwo && (
-          <ActivityIndicator
-            size={'small'}
-            style={{alignSelf: 'center'}}
-            color={'#009387'}
-          />
-        )}
+
         <View
           style={{
             position: 'absolute',
@@ -246,11 +240,18 @@ const About = ({navigation, route, user}) => {
             style={{alignSelf: 'center'}}
             name={'create'}
             size={25}
-            color={'#009387'}
+            color={'#7961C1'}
             onPress={() => pickImage()}
           />
         </View>
       </View>
+      {lodingtwo && (
+        <ActivityIndicator
+          size={'small'}
+          style={{alignSelf: 'center'}}
+          color={'#7961C1'}
+        />
+      )}
       <View>
         <Text
           style={{
@@ -276,7 +277,7 @@ const About = ({navigation, route, user}) => {
 
       <Text
         style={{
-          color: '#009387',
+          color: '#7961C1',
           fontWeight: 'bold',
           fontSize: 16,
           paddingTop: 5,
@@ -293,12 +294,20 @@ const About = ({navigation, route, user}) => {
             <View style={styles.card}>
               <View style={{flexDirection: 'row'}}>
                 <View style={styles.userImageST}>
-                  <Icon
-                    style={{alignSelf: 'center'}}
-                    name={'person'}
-                    size={25}
-                    color={'white'}
-                  />
+                  {item.profilePic ? (
+                    <Image
+                      style={styles.userImageST}
+                      resizeMode="cover"
+                      source={{uri: item.profilePic}}
+                    />
+                  ) : (
+                    <Icon
+                      style={{alignSelf: 'center'}}
+                      name={'person'}
+                      size={25}
+                      color={'white'}
+                    />
+                  )}
                 </View>
                 <View style={styles.textArea}>
                   <Text style={styles.nameText}>{item.name}</Text>
@@ -333,7 +342,7 @@ const About = ({navigation, route, user}) => {
                     }}>
                     <Text
                       style={{
-                        color: '#009387',
+                        color: '#7961C1',
                         paddingHorizontal: 6,
                         paddingVertical: 3,
                       }}>
@@ -358,7 +367,7 @@ const styles = StyleSheet.create({
   },
   userImageSTT: {
     alignSelf: 'center',
-    backgroundColor: '#009387',
+    backgroundColor: '#7961C1',
     height: '20%',
     width: '40%',
     marginTop: '10%',
@@ -378,7 +387,7 @@ const styles = StyleSheet.create({
     height: 50,
     borderRadius: 25,
     alignSelf: 'center',
-    backgroundColor: '#009387',
+    backgroundColor: '#7961C1',
     justifyContent: 'center',
   },
   groupImage: {
@@ -422,7 +431,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: 25,
     right: 30,
-    backgroundColor: '#009387',
+    backgroundColor: '#7961C1',
     padding: 10,
     borderRadius: 5,
   },

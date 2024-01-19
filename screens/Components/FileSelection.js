@@ -36,7 +36,7 @@ function FileSelection({visible, onClose, onSelect}) {
         return (
           <Icon
             name="checkmark-circle"
-            color={'#009387'}
+            color={'#7961C1'}
             size={30}
             onPress={onClose}
           />
@@ -51,74 +51,80 @@ function FileSelection({visible, onClose, onSelect}) {
       transparent={true}
       style={{flex: 1}}
       animationType="slide">
-      <TouchableWithoutFeedback onPress={onClose}>
+      <TouchableWithoutFeedback onPress={() => onClose()}>
         <View style={{flex: 1}}>
           <View style={styles.container}>
             <View style={styles.card}>
-              <View style={{justifyContent: 'center'}}>
+              <TouchableOpacity
+                onPress={() => onSelect(DocumentPicker.types.images)}
+                style={{justifyContent: 'center'}}>
                 <Icon
                   name={'images-outline'}
                   size={25}
-                  onPress={() => onSelect(DocumentPicker.types.images)}
-                  color={'grey'}
+                  color={'black'}
                   style={{alignSelf: 'center'}}
                 />
                 <Text style={{color: 'black'}}>Images</Text>
-              </View>
-              <View style={{justifyContent: 'center'}}>
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => onSelect(DocumentPicker.types.video)}
+                style={{justifyContent: 'center'}}>
                 <Icon
                   name={'play-circle-outline'}
-                  onPress={() => onSelect(DocumentPicker.types.video)}
                   size={25}
-                  color={'grey'}
+                  color={'black'}
                   style={{alignSelf: 'center'}}
                 />
-                <Text style={{color: 'black'}}>Vedios</Text>
-              </View>
+                <Text style={{color: 'black'}}>Video</Text>
+              </TouchableOpacity>
             </View>
             <View style={styles.card}>
-              <View style={{justifyContent: 'center'}}>
+              <TouchableOpacity
+                onPress={() => onSelect(DocumentPicker.types.audio)}
+                style={{justifyContent: 'center'}}>
                 <Icon
                   name={'musical-notes-outline'}
                   size={25}
-                  onPress={() => onSelect(DocumentPicker.types.audio)}
-                  color={'grey'}
+                  color={'black'}
                   style={{alignSelf: 'center'}}
                 />
                 <Text style={{color: 'black'}}>Audio</Text>
-              </View>
-              <View style={{justifyContent: 'center'}}>
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => onSelect(DocumentPicker.types.pdf)}
+                style={{justifyContent: 'center'}}>
                 <Icon
                   name={'document-outline'}
                   size={25}
-                  onPress={() => onSelect(DocumentPicker.types.pdf)}
-                  color={'grey'}
+                  color={'black'}
                   style={{alignSelf: 'center'}}
                 />
                 <Text style={{color: 'black'}}>Document</Text>
-              </View>
+              </TouchableOpacity>
             </View>
             <View style={styles.card}>
-              <View style={{justifyContent: 'center'}}>
+              <TouchableOpacity
+                onPress={() => onSelect('Contact')}
+                style={{justifyContent: 'center'}}>
                 <Icon
                   name={'call-outline'}
                   size={25}
-                  onPress={() => onSelect('Contact')}
-                  color={'grey'}
+                  color={'black'}
                   style={{alignSelf: 'center'}}
                 />
                 <Text style={{color: 'black'}}>Contact</Text>
-              </View>
-              <View style={{justifyContent: 'center'}}>
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => onSelect('Location')}
+                style={{justifyContent: 'center'}}>
                 <Icon
                   name={'location-outline'}
                   size={25}
-                  color={'grey'}
-                  onPress={() => onSelect('Location')}
+                  color={'black'}
                   style={{alignSelf: 'center'}}
                 />
                 <Text style={{color: 'black'}}>Location</Text>
-              </View>
+              </TouchableOpacity>
             </View>
           </View>
         </View>
@@ -150,7 +156,7 @@ const styles = StyleSheet.create({
     height: 50,
     borderRadius: 25,
     alignSelf: 'center',
-    backgroundColor: '#009387',
+    backgroundColor: '#7961C1',
     justifyContent: 'center',
   },
   textArea: {
@@ -190,7 +196,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: 25,
     right: 30,
-    backgroundColor: '#009387',
+    backgroundColor: '#7961C1',
     padding: 10,
     borderRadius: 5,
   },

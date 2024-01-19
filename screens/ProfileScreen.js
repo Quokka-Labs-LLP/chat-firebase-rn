@@ -105,7 +105,7 @@ const ProfileScreen = ({user}) => {
       {!loding && (
         <ScrollView>
           <View style={styles.card}>
-            <View style={{backgroundColor: '#009387', borderRadius: 100}}>
+            <View style={{backgroundColor: '#7961C1', borderRadius: 100}}>
               {users[0].profilePic ? (
                 <Image
                   style={styles.userImageST}
@@ -131,7 +131,7 @@ const ProfileScreen = ({user}) => {
                   style={{alignSelf: 'center'}}
                   name={'create'}
                   size={25}
-                  color={'#009387'}
+                  color={'#7961C1'}
                   onPress={() => pickImage()}
                 />
               </View>
@@ -140,7 +140,7 @@ const ProfileScreen = ({user}) => {
               <ActivityIndicator
                 size={'small'}
                 style={{alignSelf: 'center'}}
-                color={'#009387'}
+                color={'#7961C1'}
               />
             )}
             <View style={styles.textArea}>
@@ -151,7 +151,7 @@ const ProfileScreen = ({user}) => {
                 style={[
                   styles.signIn,
                   {
-                    borderColor: '#009387',
+                    borderColor: '#7961C1',
                     borderWidth: 1,
                     marginTop: 15,
                   },
@@ -160,7 +160,7 @@ const ProfileScreen = ({user}) => {
                   style={[
                     styles.textSign,
                     {
-                      color: '#009387',
+                      color: '#7961C1',
                     },
                   ]}>
                   {' '}
@@ -251,7 +251,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontWeight: '900',
     fontFamily: 'Verdana',
-    color: '#009387',
+    color: '#7961C1',
   },
   msgTime: {
     textAlign: 'right',
@@ -261,7 +261,7 @@ const styles = StyleSheet.create({
   msgContent: {
     paddingTop: 5,
     textAlign: 'center',
-    color: '#009387',
+    color: '#7961C1',
   },
   sectionDescription: {
     marginTop: 8,

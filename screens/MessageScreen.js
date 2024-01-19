@@ -12,7 +12,7 @@ import {
 import Icon from 'react-native-vector-icons/Ionicons';
 import {ScrollView} from 'react-native-virtualized-view';
 import firestore from '@react-native-firebase/firestore';
-import {getUsers} from './helper/hepler';
+import {getUsers, capitalizeFirstLetter} from './helper/hepler';
 import GetLetestMessage from './Components/GetLetestMessage';
 Icon.loadFont().then();
 
@@ -67,7 +67,9 @@ const MessageScreen = ({user, navigation}) => {
                     )}
                   </View>
                   <View style={styles.textArea}>
-                    <Text style={styles.nameText}>{item.name}</Text>
+                    <Text style={styles.nameText}>
+                      {capitalizeFirstLetter(item.name)}
+                    </Text>
                     <Text style={styles.msgTime}>{item.messageTime}</Text>
                     <GetLetestMessage
                       userId={user.uid}
@@ -121,7 +123,7 @@ const styles = StyleSheet.create({
     height: 50,
     borderRadius: 25,
     alignSelf: 'center',
-    backgroundColor: '#009387',
+    backgroundColor: '#7961C1',
     justifyContent: 'center',
   },
   textArea: {
@@ -139,7 +141,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   nameText: {
-    fontSize: 14,
+    fontSize: 16,
     fontWeight: '900',
     fontFamily: 'Verdana',
     color: 'black',

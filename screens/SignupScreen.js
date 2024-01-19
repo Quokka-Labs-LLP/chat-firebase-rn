@@ -131,7 +131,7 @@ export default SignupScreen = ({navigation}) => {
           style={[
             styles.signIn,
             {
-              borderColor: '#009387',
+              borderColor: '#7961C1',
               borderWidth: 1,
               marginTop: 15,
             },
@@ -140,7 +140,7 @@ export default SignupScreen = ({navigation}) => {
             style={[
               styles.textSign,
               {
-                color: '#009387',
+                color: '#7961C1',
               },
             ]}>
             {' '}
@@ -165,7 +165,7 @@ const height_logo = height * 0.28;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#009387',
+    backgroundColor: '#7961C1',
   },
   header: {
     flex: 1,
