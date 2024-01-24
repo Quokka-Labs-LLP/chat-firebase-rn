@@ -9,17 +9,10 @@ import SigninScreen from './screens/SigninScreen';
 import MessageScreen from './screens/MessageScreen';
 import GroupScreen from './screens/GroupScreen';
 import About from './screens/About';
-import {
-  StyleSheet,
-  Modal,
-  View,
-  Text,
-  TextInput,
-  TouchableOpacity,
-} from 'react-native';
+import UserAbout from './screens/UserAbout';
+import {StyleSheet} from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import auth from '@react-native-firebase/auth';
-import firestore from '@react-native-firebase/firestore';
 import {NotificationController} from './screens/Notification/NotificationController';
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -36,6 +29,7 @@ const Stack = createNativeStackNavigator();
   }}>
   <Stack.Screen name="Chats" component={ChatScreen} />
   <Stack.Screen name="About" component={About} />
+  <Stack.Screen name="UserAbout" component={UserAbout} />
 </Stack.Navigator>;
 const msgsName = 'Messages';
 const profileName = 'Profile';
@@ -81,15 +75,6 @@ function TheTab({user, setvisiblee}) {
               initialParams={{userid: user.uid}}
               options={{
                 title: 'Group',
-                // headerRight: () => (
-                //   <Icon
-                //     name="add"
-                //     onPress={() => setvisiblee()}
-                //     size={30}
-                //     color="white"
-                //     style={{marginRight: 10}}
-                //   />
-                // ),
                 headerStyle: {
                   backgroundColor: '#7961C1',
                 },
@@ -112,8 +97,6 @@ function TheTab({user, setvisiblee}) {
 
 const App = () => {
   const [user, setUser] = useState('');
-  // const [visible, setvisible] = useState(false);
-  // const [channelName, setChannelName] = useState('');
 
   useEffect(() => {
     const userCheck = auth().onAuthStateChanged(userExist => {
@@ -128,43 +111,6 @@ const App = () => {
     };
   }, []);
 
-  // const createRoom = () => {
-  //   if (channelName.length > 0) {
-  //     const createGroupAndAddUser = async (channelName, userId) => {
-  //       try {
-  //         // Create a group
-  //         const groupRef = await firestore()
-  //           .collection('THREADS')
-  //           .add({
-  //             name: channelName,
-  //             latestMessage: {
-  //               text: `You have joined the room ${channelName}.`,
-  //               createdAt: new Date(),
-  //             },
-  //             members: [userId],
-  //             grupecreatedAt: new Date(),
-  //             createdBy: userId,
-  //           });
-
-  //         const groupId = groupRef.id;
-  //         // Add a system message to the group
-  //         await groupRef.collection('messages').add({
-  //           _id: new Date(),
-  //           text: `You have joined the ${channelName}.`,
-  //           createdAt: new Date(),
-  //           system: true,
-  //         });
-  //         return groupId;
-  //       } catch (error) {
-  //         console.error('Error creating group and adding user:', error);
-  //         return null;
-  //       }
-  //     };
-  //     createGroupAndAddUser(channelName, user.uid);
-  //     setChannelName('');
-  //     setvisible(!visible);
-  //   }
-  // };
   return (
     <>
       <NavigationContainer>
@@ -181,14 +127,7 @@ const App = () => {
           {user ? (
             <>
               <Stack.Screen name="Home" options={{headerShown: false}}>
-                {props => (
-                  <TheTab
-                    {...props}
-                    user={user}
-                    // visiblee={visible}
-                    // setvisiblee={() => setvisible(!visible)}
-                  />
-                )}
+                {props => <TheTab {...props} user={user} />}
               </Stack.Screen>
               <Stack.Screen
                 name="Chats"
@@ -205,6 +144,14 @@ const App = () => {
                   headerBackTitleVisible: false,
                 })}>
                 {props => <About {...props} user={user} />}
+              </Stack.Screen>
+              <Stack.Screen
+                name="UserAbout"
+                options={({route}) => ({
+                  title: route.params.name,
+                  headerBackTitleVisible: false,
+                })}>
+                {props => <UserAbout {...props} user={user} />}
               </Stack.Screen>
             </>
           ) : (
@@ -231,50 +178,6 @@ const App = () => {
         </Stack.Navigator>
         <NotificationController />
       </NavigationContainer>
-      {/* <Modal
-        visible={visible}
-        onRequestClose={() => setvisible(!visible)}
-        transparent={true}
-        animationType="slide"
-        style={{height: 400}}>
-        <View
-          style={{
-            height: '60%',
-            width: '97%',
-            backgroundColor: 'white',
-            position: 'absolute',
-            bottom: 0,
-            alignSelf: 'center',
-            borderTopLeftRadius: 40,
-            borderTopRightRadius: 40,
-          }}>
-          <Icon
-            name="close-circle-outline"
-            color={'#7961C1'}
-            size={30}
-            onPress={() => setvisible(!visible)}
-            style={{alignSelf: 'flex-end', padding: 10}}
-          />
-          <View style={styles.innerContainer}>
-            <Text style={styles.title}>Create a new Group</Text>
-            <TextInput
-              placeholder="Group Name"
-              placeholderTextColor={'black'}
-              maxLength={12}
-              value={channelName}
-              onChangeText={text => setChannelName(text)}
-              clearButtonMode="while-editing"
-              style={styles.inputStyle}
-            />
-            <TouchableOpacity
-              style={styles.buttonStyle}
-              onPress={() => createRoom()}
-              disabled={channelName.length === 0}>
-              <Text style={styles.buttonLabel}>Create</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </Modal> */}
     </>
   );
 };

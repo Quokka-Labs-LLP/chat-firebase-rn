@@ -5,6 +5,10 @@ import {
   StyleSheet,
   Dimensions,
   ActivityIndicator,
+  FlatList,
+  ScrollView,
+  ImageBackground,
+  Image,
 } from 'react-native';
 import Pdf from 'react-native-pdf';
 import Icon from 'react-native-vector-icons/AntDesign';
@@ -12,7 +16,43 @@ import DownloadButton from './DownloadButton';
 
 function InChatViewFile({props, visible, filee, onClose}) {
   const source = {uri: props.file.url, cache: true};
-
+  const imaages = props.image;
+  const renderItem = item => {
+    return (
+      <View
+        style={[
+          styles.pdf,
+          {
+            width: Dimensions.get('window').width - 20,
+            justifyContent: 'center',
+            height: Dimensions.get('window').height - 100,
+          },
+        ]}>
+        <Image
+          source={{uri: item.item}}
+          resizeMode="contain"
+          style={{
+            height: '100%',
+            width: Dimensions.get('window').width - 25,
+          }}
+        />
+        <View
+          style={{
+            backgroundColor: '#7961C1',
+            width: 50,
+            height: 50,
+            alignItems: 'center',
+            borderRadius: 40,
+            position: 'absolute',
+            bottom: '5%',
+            justifyContent: 'center',
+            right: 10,
+          }}>
+          <DownloadButton filePath={item.item} />
+        </View>
+      </View>
+    );
+  };
   return (
     <Modal
       visible={visible}
@@ -27,7 +67,7 @@ function InChatViewFile({props, visible, filee, onClose}) {
             justifyContent: 'space-between',
           }}>
           <Icon name={'close'} onPress={onClose} size={25} color={'black'} />
-          <DownloadButton filePath={source.uri} />
+          {imaages.length == 0 && <DownloadButton filePath={source.uri} />}
         </View>
 
         {props.file.url && (
@@ -47,6 +87,14 @@ function InChatViewFile({props, visible, filee, onClose}) {
               console.log(`Link pressed: ${uri}`);
             }}
             style={styles.pdf}
+          />
+        )}
+        {props.image.length > 0 && (
+          <FlatList
+            data={props.image}
+            keyExtractor={item => item}
+            horizontal
+            renderItem={renderItem}
           />
         )}
       </View>
@@ -73,7 +121,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: 'flex-start',
-    marginTop: 25,
   },
   video: {
     width: '99%',
@@ -85,9 +132,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   pdf: {
-    flex: 1,
     width: Dimensions.get('window').width,
     height: Dimensions.get('window').height,
-    backgroundColor: 'white',
+    backgroundColor: 'lightgrey',
   },
 });

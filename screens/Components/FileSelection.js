@@ -91,15 +91,15 @@ function FileSelection({visible, onClose, onSelect}) {
                 <Text style={{color: 'black'}}>Audio</Text>
               </TouchableOpacity>
               <TouchableOpacity
-                onPress={() => onSelect(DocumentPicker.types.pdf)}
+                onPress={() => onSelect('Camera')}
                 style={{justifyContent: 'center'}}>
                 <Icon
-                  name={'document-outline'}
+                  name={'camera-outline'}
                   size={25}
                   color={'black'}
                   style={{alignSelf: 'center'}}
                 />
-                <Text style={{color: 'black'}}>Document</Text>
+                <Text style={{color: 'black'}}>Camera</Text>
               </TouchableOpacity>
             </View>
             <View style={styles.card}>
@@ -114,6 +114,19 @@ function FileSelection({visible, onClose, onSelect}) {
                 />
                 <Text style={{color: 'black'}}>Contact</Text>
               </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => onSelect(DocumentPicker.types.pdf)}
+                style={{justifyContent: 'center'}}>
+                <Icon
+                  name={'document-outline'}
+                  size={25}
+                  color={'black'}
+                  style={{alignSelf: 'center'}}
+                />
+                <Text style={{color: 'black'}}>Document</Text>
+              </TouchableOpacity>
+            </View>
+            <View style={styles.card}>
               <TouchableOpacity
                 onPress={() => onSelect('Location')}
                 style={{justifyContent: 'center'}}>
@@ -176,7 +189,7 @@ const styles = StyleSheet.create({
     color: 'black',
   },
   container: {
-    height: '30%',
+    height: '40%',
     width: '80%',
     marginTop: 25,
     backgroundColor: 'white',

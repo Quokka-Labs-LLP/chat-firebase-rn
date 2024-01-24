@@ -24,12 +24,20 @@ const DownloadButton = ({filePath}) => {
           name={'arrow-down-sharp'}
           onPress={() => handelDownload()}
           size={20}
-          color={'black'}
+          color={'white'}
           style={{padding: 4}}
         />
       ) : lodingg ? (
-        <ActivityIndicator size={'small'} color={'black'} />
-      ) : null}
+        <ActivityIndicator size={'small'} color={'white'} />
+      ) : (
+        <Icon
+          name={'checkmark'}
+          onPress={() => handelDownload()}
+          size={20}
+          color={'white'}
+          style={{padding: 4}}
+        />
+      )}
     </View>
   );
 };

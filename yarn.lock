@@ -1751,6 +1751,11 @@
     prompts "^2.4.2"
     semver "^7.5.2"
 
+"@react-native-community/slider@^4.5.0":
+  version "4.5.0"
+  resolved "https://registry.yarnpkg.com/@react-native-community/slider/-/slider-4.5.0.tgz#5c55488ee30060cd87100fb746b9d8655dbab04e"
+  integrity sha512-pyUvNTvu5IfCI5abzqRfO/dd3A009RC66RXZE6t0gyOwI/j0QDlq9VZRv3rjkpuIvNTnsYj+m5BHlh0DkSYUyA==
+
 "@react-native-firebase/app@14.11.1":
   version "14.11.1"
   resolved "https://registry.yarnpkg.com/@react-native-firebase/app/-/app-14.11.1.tgz#5d3587bda0a8877863e59384a4d38f7ebc321835"
@@ -6033,7 +6038,7 @@ react-native-gifted-chat@1.0.4:
     use-memo-one "1.1.2"
     uuid "3.4.0"
 
-react-native-image-picker@7.1.0:
+react-native-image-picker@^7.1.0:
   version "7.1.0"
   resolved "https://registry.yarnpkg.com/react-native-image-picker/-/react-native-image-picker-7.1.0.tgz#1a41cc45ccdc177c2ebf7c7accee0ceadc36abd8"
   integrity sha512-An0hn2mwqjGAA2mbsXdHRTyoMMklGPT9stIjE2zvkegU7CdoFhowqvVHfnELJNZnfAiSQuIaeY//z0r1R0lsgw==

@@ -1,5 +1,13 @@
 import React, {useState, useEffect} from 'react';
-import {View, Text, StyleSheet, Image, Pressable, Linking} from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  Image,
+  Pressable,
+  Linking,
+  ImageBackground,
+} from 'react-native';
 import Icon from 'react-native-vector-icons/AntDesign';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import Feather from 'react-native-vector-icons/Feather';
@@ -9,7 +17,7 @@ import VideoPlayer from './VideoPlayer';
 
 Icon.loadFont().then();
 
-const InChatFileTransfer = ({filePath}) => {
+const InChatFileTransfer = ({filePath, imediaArry}) => {
   useFocusEffect(
     React.useCallback(() => {
       return () => {
@@ -26,7 +34,6 @@ const InChatFileTransfer = ({filePath}) => {
   const [playaudio, setplayaudio] = useState(false);
   let _onFinishedPlayingSubscription = null;
   let _onFinishedLoadingURLSubscription = null;
-
   useEffect(() => {
     _onFinishedPlayingSubscription = SoundPlayer.addEventListener(
       'FinishedPlaying',
@@ -66,9 +73,12 @@ const InChatFileTransfer = ({filePath}) => {
   var fileType = '';
   var name = '';
   var isContect = filePath.slice(0, 3) == 'con';
+  var isImage = filePath.slice(0, 3) == 'img';
+  var isVedio = filePath.slice(0, 3) == 'ved';
+
   var isLocation =
     filePath.slice(0, 3) == 'geo' || filePath.slice(0, 3) == 'map';
-  if (filePath !== undefined) {
+  if (filePath !== undefined && !isImage && !isVedio) {
     name = filePath.split('/').pop();
     fileType = filePath.split('.').pop().split('?')[0];
   }
@@ -98,7 +108,8 @@ const InChatFileTransfer = ({filePath}) => {
             color={'black'}
           />
         ) : (
-          fileType !== 'mp4' && (
+          !isImage &&
+          !isVedio && (
             <Icon
               style={{alignSelf: 'center', padding: 5}}
               name={'pdffile1'}
@@ -107,8 +118,34 @@ const InChatFileTransfer = ({filePath}) => {
             />
           )
         )}
-        {fileType == 'mp4' ? (
-          <VideoPlayer Uri={filePath} />
+        {isVedio ? (
+          <VideoPlayer Uri={imediaArry[0]} />
+        ) : isImage ? (
+          <View style={{height: 200, width: '100%'}}>
+            <ImageBackground
+              source={{uri: imediaArry[0]}}
+              style={{height: '100%', width: '100%'}}>
+              {imediaArry.length > 1 && (
+                <View
+                  style={{
+                    backgroundColor: 'black',
+                    opacity: imediaArry.length > 1 ? 0.2 : 0,
+                    flex: 1,
+                    justifyContent: 'center',
+                  }}>
+                  <Text
+                    style={{
+                      color: 'black',
+                      alignSelf: 'center',
+                      fontSize: 40,
+                      opacity: 1,
+                    }}>
+                    +{imediaArry.length - 1}
+                  </Text>
+                </View>
+              )}
+            </ImageBackground>
+          </View>
         ) : (
           <View>
             <Text style={styles.text} numberOfLines={1} ellipsizeMode="middle">
@@ -164,10 +201,8 @@ const styles = StyleSheet.create({
     marginLeft: 10,
   },
   frame: {
-    backgroundColor: '#fff',
     flexDirection: 'row',
     borderRadius: 10,
-    padding: 5,
     marginTop: -4,
   },
 });

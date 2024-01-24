@@ -22,6 +22,7 @@ import {
   updateseenstatusgroup,
 } from './helper/hepler';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
+import {launchCamera} from 'react-native-image-picker';
 
 import {GiftedChat, Bubble, InputToolbar, Send} from 'react-native-gifted-chat';
 import firestore from '@react-native-firebase/firestore';
@@ -45,7 +46,7 @@ const ChatScreen = ({user, route, navigation}) => {
   const [fileVisible, setFileVisible] = useState(false);
   const [visibleFileSlection, setvisibleFileSlection] = useState(false);
   const [visibleShareLoc, setvisibleShareLoc] = useState(false);
-  const [uplodedimagerul, setuplodedimagerul] = useState('');
+  const uploadimageRef = useRef([]);
   const [loding, setloding] = useState(false);
   const [selecteditem, setselecteditem] = useState();
   const [username, setusername] = useState('');
@@ -131,6 +132,29 @@ const ChatScreen = ({user, route, navigation}) => {
           </View>
         ),
       });
+    } else {
+      navigation.setOptions({
+        headerRight: () => (
+          <View style={{flexDirection: 'row'}}>
+            <Icon
+              name="ellipsis-vertical"
+              size={25}
+              color="white"
+              onPress={() =>
+                navigation.navigate('UserAbout', {
+                  name: 'About',
+                  item: item,
+                  chatId:
+                    uid > user.uid
+                      ? user.uid + '-' + uid
+                      : uid + '-' + user.uid,
+                })
+              }
+              style={{marginRight: 10}}
+            />
+          </View>
+        ),
+      });
     }
     getUserName();
   }, []);
@@ -139,17 +163,24 @@ const ChatScreen = ({user, route, navigation}) => {
     const updatedArry = selecedfiles.filter(item => item.name != filename);
     setselectedfiles(updatedArry);
   };
+
   const uploadfile = async (uploaduri, messages, index) => {
     try {
       await fileUploadd(uploaduri).then(() => {
         getUrl(uploaduri)
           .then(url => {
-            setuplodedimagerul(url);
-            messages[0]._id =
-              messages[0]._id + '-' + Math.floor(Date.now() / 1000);
-            onSend(messages, uploaduri, url);
+            // messages[0]._id =
+            //   messages[0]._id + '-' + Math.floor(Date.now() / 1000);
+            // onSend(messages, uploaduri, url);
+            // setuplodedimagerul(prevUplodedImages => [
+            //   ...prevUplodedImages,
+            //   url,
+            // ]);
+            uploadimageRef.current.push(url);
             if (index == selecedfiles.length - 1) {
+              console.log('uplodedimagerul=====>>>>>', uploadimageRef.current);
               setselectedfiles([]);
+              onSend(messages, uploaduri, url);
             }
           })
           .finally(() => {
@@ -160,6 +191,7 @@ const ChatScreen = ({user, route, navigation}) => {
       console.error(e);
     }
   };
+
   const _pickDocument = async type => {
     if (type == 'Location') {
       setvisibleFileSlection(!visibleFileSlection);
@@ -169,6 +201,37 @@ const ChatScreen = ({user, route, navigation}) => {
     if (type == 'Contact') {
       setvisibleFileSlection(!visibleFileSlection);
       setshareContect(!shareContect);
+      return;
+    }
+    if (type == 'Camera') {
+      const options = {
+        mediaType: 'photo',
+        includeBase64: false,
+        maxHeight: 2000,
+        maxWidth: 2000,
+      };
+
+      launchCamera(options, response => {
+        if (response.didCancel) {
+          console.log('User cancelled camera');
+        } else if (response.error) {
+          console.log('Camera Error: ', response.error);
+        } else {
+          const updatedArray = response.assets.map(item => {
+            return {
+              ...item,
+              fileCopyUri:
+                Platform.OS === 'ios'
+                  ? item.uri.replace('file://', '')
+                  : item.uri,
+            };
+          });
+          setselectedfiles(updatedArray);
+          setvisibleFileSlection(false);
+          setIsAttachImage(true);
+          console.log('selecedfiles,', updatedArray);
+        }
+      });
       return;
     }
     try {
@@ -201,7 +264,6 @@ const ChatScreen = ({user, route, navigation}) => {
         setvisibleFileSlection(!visibleFileSlection);
         setIsAttachImage(true);
       } else {
-        console.log('setselectedfiles', setselectedfiles);
         setselectedfiles(updatedArray);
         setvisibleFileSlection(!visibleFileSlection);
         setFilePath(updatedArray[0].fileCopyUri);
@@ -227,6 +289,15 @@ const ChatScreen = ({user, route, navigation}) => {
           <Icon
             type="font-awesome"
             name="attach"
+            style={styles.paperClip}
+            size={28}
+            color="black"
+          />
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => _pickDocument('Camera')}>
+          <Icon
+            type="font-awesome"
+            name="camera"
             style={styles.paperClip}
             size={28}
             color="black"
@@ -337,29 +408,29 @@ const ChatScreen = ({user, route, navigation}) => {
     visibleShareLoc,
     shareContect,
     selectedContect,
+    uploadimageRef,
   ]);
-  console.log('fcmTokenss', fcmTokenss);
-  const checkPoint = useCallback(
-    async (messages = []) => {
-      setIsAttachImage(false);
-      setIsAttachFile(false);
-      if (selecedfiles.length == 0) {
-        onSend(messages, '', '');
-      } else if (selecedfiles.length > 0) {
-        try {
-          for (const [index, file] of selecedfiles.entries()) {
-            await uploadfile(file.fileCopyUri, messages, index);
-          }
-        } catch (e) {
-          console.error(e);
+  const checkPoint = async (messages = []) => {
+    setIsAttachImage(false);
+    setIsAttachFile(false);
+    if (selecedfiles.length == 0) {
+      onSend(messages, '', '');
+    } else if (selecedfiles.length > 0) {
+      setloding(true);
+      try {
+        for (const [index, file] of selecedfiles.entries()) {
+          await uploadfile(file.fileCopyUri, messages, index);
         }
+      } catch (e) {
+        console.error(e);
       }
-    },
-    [selecedfiles, filePath, sharLocation, selectedContect],
-  );
+    }
+  };
+
   const onSend = useCallback(
     (messages = [], uploaduri, url) => {
       const [messageToSend] = messages;
+      console.log('uploadimageRef -----', uploadimageRef);
       if (
         messageToSend.text != '' ||
         url != '' ||
@@ -379,10 +450,14 @@ const ChatScreen = ({user, route, navigation}) => {
             url != '' && filePath == ''
               ? uploaduri.split('.').pop() == 'mp4'
                 ? ''
-                : url
+                : uploadimageRef.current
               : '',
           vedio:
-            url != '' ? (uploaduri.split('.').pop() == 'mp4' ? url : '') : '',
+            url != ''
+              ? uploaduri.split('.').pop() == 'mp4'
+                ? uploadimageRef.current
+                : ''
+              : '',
           file: {
             url:
               filePath != ''
@@ -394,6 +469,7 @@ const ChatScreen = ({user, route, navigation}) => {
             type: filePath ? filePath.split('.').pop() : '',
           },
         };
+        console.log('newMessage------', newMessage);
         setMessages(previousMessages =>
           GiftedChat.append(previousMessages, newMessage),
         );
@@ -406,6 +482,7 @@ const ChatScreen = ({user, route, navigation}) => {
         setsharLocation('');
         setselectedContect('');
         setshareContect(false);
+        uploadimageRef.current([]);
         sendNotification(
           newMessage.text != ''
             ? newMessage.text
@@ -426,11 +503,11 @@ const ChatScreen = ({user, route, navigation}) => {
       filePath,
       isAttachFile,
       isAttachImage,
-      uplodedimagerul,
       username,
       sharLocation,
       selectedContect,
       fcmTokenss,
+      uploadimageRef,
     ],
   );
   //
@@ -442,7 +519,8 @@ const ChatScreen = ({user, route, navigation}) => {
         (currentMessage.file && currentMessage.file.url) ||
         currentMessage.vedio ||
         currentMessage.location ||
-        currentMessage.contact
+        currentMessage.contact ||
+        currentMessage.image
       ) {
         return (
           <TouchableOpacity
@@ -462,6 +540,8 @@ const ChatScreen = ({user, route, navigation}) => {
                   ? 0
                   : currentMessage.vedio
                   ? '20%'
+                  : currentMessage.image
+                  ? '17%'
                   : '35%',
             }}
             onPress={() => {
@@ -483,12 +563,21 @@ const ChatScreen = ({user, route, navigation}) => {
               style={{marginTop: -10}}
               filePath={
                 currentMessage.vedio
-                  ? currentMessage.vedio
+                  ? 'ved'
                   : currentMessage.location
                   ? currentMessage.location
                   : currentMessage.contact
                   ? `con.${currentMessage.contact.name}.${currentMessage.contact.phone}`
+                  : currentMessage.image
+                  ? 'img'
                   : currentMessage.file.url
+              }
+              imediaArry={
+                currentMessage.image
+                  ? currentMessage.image
+                  : currentMessage.vedio
+                  ? currentMessage.vedio
+                  : []
               }
             />
             <Text
@@ -557,7 +646,6 @@ const ChatScreen = ({user, route, navigation}) => {
     },
     [fileVisible, selecteditem],
   );
-
   // for scrolling mssages to the most recent
   const scrollToBottomComponent = () => {
     return <FontAwesome name="angle-double-down" size={22} color="#333" />;

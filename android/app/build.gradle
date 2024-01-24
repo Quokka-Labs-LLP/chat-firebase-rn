@@ -68,13 +68,17 @@ def enableProguardInReleaseBuilds = false
  * this variant is about 6MiB larger per architecture than default.
  */
 def jscFlavor = 'org.webkit:android-jsc:+'
-
+    // Add this function in case you don't have it already
+         def isNewArchitectureEnabled() {
+            return project.hasProperty("newArchEnabled") && project.newArchEnabled == "true"
+        }
 android {
     ndkVersion rootProject.ext.ndkVersion
     buildToolsVersion rootProject.ext.buildToolsVersion
     compileSdk rootProject.ext.compileSdkVersion
 
     namespace "com.chatrn"
+
     defaultConfig {
         applicationId "com.chatrn"
         minSdkVersion rootProject.ext.minSdkVersion
@@ -82,8 +86,17 @@ android {
         versionCode 1
         versionName "1.0"
         multiDexEnabled true
-
+        // buildConfigField("boolean", "IS_NEW_ARCHITECTURE_ENABLED", isNewArchitectureEnabled().toString())
     }
+        // sourceSets {
+        // main {
+        //     if (isNewArchitectureEnabled()) {
+        //         java.srcDirs += ['src/newarch']
+        //     } else {
+        //         java.srcDirs = +['src/oldarch']
+        //     }
+        // }
+        // }
     signingConfigs {
         debug {
             storeFile file('debug.keystore')
