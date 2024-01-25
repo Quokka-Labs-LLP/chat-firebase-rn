@@ -118,13 +118,18 @@ const InChatFileTransfer = ({filePath, imediaArry}) => {
             />
           )
         )}
-        {isVedio ? (
+        {isVedio && imediaArry.length == 1 ? (
           <VideoPlayer Uri={imediaArry[0]} />
-        ) : isImage ? (
+        ) : isImage || isVedio ? (
           <View style={{height: 200, width: '100%'}}>
             <ImageBackground
               source={{uri: imediaArry[0]}}
-              style={{height: '100%', width: '100%'}}>
+              style={{
+                height: '100%',
+                width: '100%',
+                backgroundColor: 'white',
+                borderRadius: 10,
+              }}>
               {imediaArry.length > 1 && (
                 <View
                   style={{
@@ -141,6 +146,15 @@ const InChatFileTransfer = ({filePath, imediaArry}) => {
                       opacity: 1,
                     }}>
                     +{imediaArry.length - 1}
+                  </Text>
+                  <Text
+                    style={{
+                      color: 'black',
+                      alignSelf: 'center',
+                      fontSize: 16,
+                      opacity: 1,
+                    }}>
+                    {imediaArry.length > 1 && isVedio ? 'More clips' : ''}
                   </Text>
                 </View>
               )}
@@ -204,5 +218,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     borderRadius: 10,
     marginTop: -4,
+    backgroundColor: 'white',
   },
 });

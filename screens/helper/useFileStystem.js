@@ -60,6 +60,7 @@ export const checkIfFileExists = async filePath => {
   const path = `${DownloadDir}/${filename[filename.length - 1]}`;
   try {
     const exists = await RNFetchBlob.fs.exists(path);
+    console.log('checkIfFileExists', exists);
     return exists;
   } catch (error) {
     console.log('checkIfFileExists Error==', error);
@@ -67,8 +68,9 @@ export const checkIfFileExists = async filePath => {
   }
 };
 export const getLocalUrl = async url => {
+  console.log('DownloadDir', DownloadDir);
   const filename = url.split('?')[0].split('/');
-  return `${DownloadDir}/${filename[filename.length - 1]}`;
+  return `file://${DownloadDir}/${filename[filename.length - 1]}`;
 };
 export const downloadFileFromurl = async url => {
   const filename = url.split('?')[0].split('/');

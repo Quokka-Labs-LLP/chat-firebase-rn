@@ -106,9 +106,14 @@ const About = ({navigation, route, user}) => {
         .doc(groupitem.threadId);
 
       // Remove the specified member from the 'members' array
-      await groupRef.update({
-        members: firestore.FieldValue.arrayRemove(user.uid),
-      });
+      groupitem.createdBy == user.uid
+        ? await groupRef.update({
+            createdBy: groupmembers[0].uid,
+            members: firestore.FieldValue.arrayRemove(user.uid),
+          })
+        : await groupRef.update({
+            members: firestore.FieldValue.arrayRemove(user.uid),
+          });
 
       // Add a system message indicating the member removal
       await groupRef.collection('messages').add({
@@ -151,6 +156,7 @@ const About = ({navigation, route, user}) => {
               marginTop: 20,
               borderWidth: 1,
               justifyContent: 'center',
+              marginBottom: 20,
             }}>
             <Text style={{alignSelf: 'center', color: '#7961C1'}}>
               Delete Group

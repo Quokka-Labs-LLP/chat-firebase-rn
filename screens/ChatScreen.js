@@ -482,7 +482,7 @@ const ChatScreen = ({user, route, navigation}) => {
         setsharLocation('');
         setselectedContect('');
         setshareContect(false);
-        uploadimageRef.current([]);
+        uploadimageRef.current = [];
         sendNotification(
           newMessage.text != ''
             ? newMessage.text
@@ -524,7 +524,11 @@ const ChatScreen = ({user, route, navigation}) => {
       ) {
         return (
           <TouchableOpacity
-            disabled={currentMessage.vedio ? true : false}
+            disabled={
+              currentMessage.vedio && currentMessage.vedio.length == 1
+                ? true
+                : false
+            }
             style={{
               ...styles.fileContainer,
               backgroundColor:
@@ -539,7 +543,7 @@ const ChatScreen = ({user, route, navigation}) => {
                 props.currentMessage.user._id === user.uid
                   ? 0
                   : currentMessage.vedio
-                  ? '20%'
+                  ? '17%'
                   : currentMessage.image
                   ? '17%'
                   : '35%',
@@ -613,8 +617,8 @@ const ChatScreen = ({user, route, navigation}) => {
                     style={{padding: 4}}
                   />
                 ) : (
-                  currentMessage.vedio && (
-                    <DownloadButton filePath={currentMessage.vedio} />
+                  currentMessage.vedio.length == 1 && (
+                    <DownloadButton filePath={currentMessage.vedio[0]} />
                   )
                 )}
               </View>

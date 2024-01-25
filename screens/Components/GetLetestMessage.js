@@ -28,6 +28,8 @@ const GetLetestMessage = ({userId, recId, from}) => {
           ? 'Location'
           : letestMessage?.contact
           ? 'Contact'
+          : letestMessage?.vedio
+          ? 'Video'
           : '',
       );
     }

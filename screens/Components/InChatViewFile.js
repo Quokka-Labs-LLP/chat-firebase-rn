@@ -13,10 +13,13 @@ import {
 import Pdf from 'react-native-pdf';
 import Icon from 'react-native-vector-icons/AntDesign';
 import DownloadButton from './DownloadButton';
+import VideoPlayer from './VideoPlayer';
 
 function InChatViewFile({props, visible, filee, onClose}) {
   const source = {uri: props.file.url, cache: true};
   const imaages = props.image;
+  const vedios = props.vedio;
+
   const renderItem = item => {
     return (
       <View
@@ -25,17 +28,52 @@ function InChatViewFile({props, visible, filee, onClose}) {
           {
             width: Dimensions.get('window').width - 20,
             justifyContent: 'center',
-            height: Dimensions.get('window').height - 100,
+            height: 500,
+            borderWidth: 0.4,
+            borderColor: 'black',
+            marginBottom: 5,
           },
         ]}>
         <Image
           source={{uri: item.item}}
-          resizeMode="contain"
+          resizeMode="cover"
           style={{
             height: '100%',
             width: Dimensions.get('window').width - 25,
           }}
         />
+        <View
+          style={{
+            backgroundColor: '#7961C1',
+            width: 50,
+            height: 50,
+            alignItems: 'center',
+            borderRadius: 40,
+            position: 'absolute',
+            bottom: '5%',
+            justifyContent: 'center',
+            right: 10,
+          }}>
+          <DownloadButton filePath={item.item} />
+        </View>
+      </View>
+    );
+  };
+  const renderItemvedio = item => {
+    return (
+      <View
+        style={[
+          styles.pdf,
+          {
+            width: Dimensions.get('window').width - 20,
+            justifyContent: 'center',
+            height: 500,
+            borderWidth: 0.4,
+            borderColor: 'black',
+            marginBottom: 5,
+          },
+        ]}>
+        <VideoPlayer Uri={item.item} />
         <View
           style={{
             backgroundColor: '#7961C1',
@@ -93,8 +131,14 @@ function InChatViewFile({props, visible, filee, onClose}) {
           <FlatList
             data={props.image}
             keyExtractor={item => item}
-            horizontal
             renderItem={renderItem}
+          />
+        )}
+        {props.vedio.length > 0 && (
+          <FlatList
+            data={props.vedio}
+            keyExtractor={item => item}
+            renderItem={renderItemvedio}
           />
         )}
       </View>
@@ -134,6 +178,6 @@ const styles = StyleSheet.create({
   pdf: {
     width: Dimensions.get('window').width,
     height: Dimensions.get('window').height,
-    backgroundColor: 'lightgrey',
+    alignSelf: 'center',
   },
 });

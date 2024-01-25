@@ -79,107 +79,75 @@
 import React, {useCallback, useRef, useState, useEffect} from 'react';
 import {
   Platform,
-  StyleProp,
   StyleSheet,
   TouchableOpacity,
   TouchableWithoutFeedback,
   View,
-  ViewStyle,
 } from 'react-native';
-import Video, {LoadError, OnProgressData} from 'react-native-video';
 import Icon from 'react-native-vector-icons/FontAwesome5';
-import Slider from '@react-native-community/slider';
+import {Video, ResizeMode} from 'expo-av';
+import {checkIfFileExists, getLocalUrl} from '../helper/useFileStystem';
 
 const VideoPlayer = ({Uri}) => {
   const videoRef = useRef(null);
-  const [videoEnded, setVideoEnded] = useState(false);
-
+  const [status, setStatus] = React.useState({});
   const [paused, setPaused] = useState(true);
-  const [progress, setProgress] = useState({
-    playableDuration: 0,
-    currentTime: 0,
-    seekableDuration: 0,
-  });
-  console.log('Uri', Uri);
-  // useEffect(() => {
-  //   setPaused(videoItem?.id == item?.id ? false : true);
-  // }, [videoItem?.id, item?.id]);
-
-  const [duration, setDuration] = useState(0);
-  const [currentTime, setCurrentTime] = useState(0);
-
-  const onProgress = data => {
-    setCurrentTime(data.currentTime);
-    setDuration(data?.seekableDuration);
-  };
-
-  const onEnd = () => {
-    setCurrentTime(duration);
-  };
-
-  const onSliderValueChange = value => {
-    setCurrentTime(value);
-    // setIsSeeking(true);
-  };
-
-  const onSliderSlidingComplete = value => {
-    videoRef.current?.seek(value);
-    // setIsSeeking(false);
-  };
-
-  const onLoad = data => {
-    setCurrentTime(data?.currentTime);
-    setDuration(data?.duration);
-  };
+  const [vediouri, setvediouri] = useState(Uri);
+  useEffect(() => {
+    checkIfFileExists(Uri).then(res => {
+      res &&
+        getLocalUrl(Uri).then(res => {
+          console.log('--------', res);
+          // setvediouri(res);
+        });
+    });
+    console.log(vediouri);
+  }, []);
   return (
-    <View style={{justifyContent: 'center', height: 200, width: '100%'}}>
+    <View
+      style={{
+        justifyContent: 'center',
+        height: 200,
+        width: '100%',
+      }}>
       <TouchableWithoutFeedback
-        style={{justifyContent: 'center', height: '100%', width: '50%'}}
-        onPress={() => {
-          // if (videoEnded) {
-          //   videoRef.current?.seek(0);
-          //   setVideoEnded(false);
-          // }
-          setPaused(!paused);
+        style={{
+          justifyContent: 'center',
+          height: '100%',
+          width: '50%',
         }}>
         <Video
-          paused={paused}
           ref={videoRef}
-          source={{uri: Uri}}
           style={styles.video}
-          onLoad={onLoad}
-          onProgress={onProgress}
-          onEnd={onEnd}
+          source={{
+            uri: vediouri,
+          }}
+          useNativeControls
+          resizeMode={ResizeMode.COVER}
+          onPlaybackStatusUpdate={status => setStatus(() => status)}
         />
       </TouchableWithoutFeedback>
 
-      {paused && (
-        <View style={[styles.center, styles.playButton]}>
+      <View style={[styles.center, styles.playButton]}>
+        {paused && (
           <TouchableOpacity
-            onPress={() => {
-              setPaused(!paused);
-            }}>
-            <Icon size={35} color={'white'} name="play" />
+            style={{height: '100%', width: '100%', justifyContent: 'center'}}
+            onPress={() =>
+              status.isPlaying
+                ? videoRef.current.pauseAsync()
+                : videoRef.current.playAsync()
+            }>
+            {!status.isPlaying && (
+              <Icon
+                size={35}
+                color={'white'}
+                name="play"
+                style={{alignSelf: 'center'}}
+              />
+            )}
           </TouchableOpacity>
-        </View>
-      )}
-      {/* {hideSeek && ( */}
-      <View style={styles.controls}>
-        <Slider
-          tapToSeek={true}
-          style={styles.slider}
-          minimumValue={0}
-          maximumValue={duration}
-          value={currentTime}
-          onValueChange={onSliderValueChange}
-          onSlidingComplete={onSliderSlidingComplete}
-          minimumTrackTintColor="red"
-          maximumTrackTintColor="grey"
-          thumbTintColor={'grey'}
-          onResponderGrant={() => (Platform.OS == 'android' ? true : false)}
-        />
+        )}
       </View>
-      {/* )} */}
     </View>
   );
 };
