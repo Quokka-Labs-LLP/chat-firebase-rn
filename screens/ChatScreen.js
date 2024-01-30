@@ -132,30 +132,8 @@ const ChatScreen = ({user, route, navigation}) => {
           </View>
         ),
       });
-    } else {
-      navigation.setOptions({
-        headerRight: () => (
-          <View style={{flexDirection: 'row'}}>
-            <Icon
-              name="ellipsis-vertical"
-              size={25}
-              color="white"
-              onPress={() =>
-                navigation.navigate('UserAbout', {
-                  name: 'About',
-                  item: item,
-                  chatId:
-                    uid > user.uid
-                      ? user.uid + '-' + uid
-                      : uid + '-' + user.uid,
-                })
-              }
-              style={{marginRight: 10}}
-            />
-          </View>
-        ),
-      });
     }
+
     getUserName();
   }, []);
 
@@ -525,7 +503,8 @@ const ChatScreen = ({user, route, navigation}) => {
         return (
           <TouchableOpacity
             disabled={
-              currentMessage.vedio && currentMessage.vedio.length == 1
+              (currentMessage.vedio && currentMessage.vedio.length == 1) ||
+              currentMessage?.file?.type == 'mp3'
                 ? true
                 : false
             }

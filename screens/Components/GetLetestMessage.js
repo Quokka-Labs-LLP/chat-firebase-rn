@@ -23,7 +23,7 @@ const GetLetestMessage = ({userId, recId, from}) => {
           : letestMessage?.image
           ? 'image'
           : letestMessage?.file?.url
-          ? 'Doc'
+          ? letestMessage?.file?.type
           : letestMessage?.location
           ? 'Location'
           : letestMessage?.contact

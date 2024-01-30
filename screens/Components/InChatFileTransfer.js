@@ -198,7 +198,7 @@ const styles = StyleSheet.create({
     lineHeight: 20,
     marginLeft: 12,
     marginRight: 5,
-    width: '30%',
+    width: '20%',
   },
   video: {
     width: '92%',
