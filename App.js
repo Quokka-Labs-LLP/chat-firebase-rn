@@ -1,5 +1,5 @@
 import React, {useState, useEffect} from 'react';
-import {NavigationContainer} from '@react-navigation/native';
+import {NavigationContainer, DefaultTheme} from '@react-navigation/native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import ProfileScreen from './screens/ProfileScreen';
@@ -10,17 +10,23 @@ import MessageScreen from './screens/MessageScreen';
 import GroupScreen from './screens/GroupScreen';
 import About from './screens/About';
 import UserAbout from './screens/UserAbout';
-import {StyleSheet} from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import auth from '@react-native-firebase/auth';
 import {NotificationController} from './screens/Notification/NotificationController';
+
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
-
+const MyTheme = {
+  ...DefaultTheme,
+  colors: {
+    ...DefaultTheme.colors,
+    primary: '#7961C1',
+  },
+};
 <Stack.Navigator
   screenOptions={{
     headerStyle: {
-      backgroundColor: '#7961C1',
+      backgroundColor: MyTheme.colors.primary,
     },
     headerTintColor: '#fff',
     headerTitleStyle: {
@@ -33,13 +39,13 @@ const Stack = createNativeStackNavigator();
 </Stack.Navigator>;
 const msgsName = 'Messages';
 const profileName = 'Profile';
-const GroupName = 'Group';
 
-function TheTab({user, setvisiblee}) {
+function TheTab({user}) {
   return (
     <Tab.Navigator
       initialRouteName={msgsName}
       screenOptions={({route}) => ({
+        // eslint-disable-next-line react/no-unstable-nested-components
         tabBarIcon: ({focused, color, size}) => {
           let iconName;
           let rn = route.name;
@@ -53,13 +59,13 @@ function TheTab({user, setvisiblee}) {
           return <Icon name={iconName} size={size} color={color} />;
         },
         headerStyle: {
-          backgroundColor: '#7961C1',
+          backgroundColor: MyTheme.colors.primary,
         },
         headerTintColor: '#fff',
         headerTitleStyle: {
           fontWeight: 'bold',
         },
-        tabBarActiveTintColor: '#7961C1',
+        tabBarActiveTintColor: MyTheme.colors.primary,
         tabBarInactiveTintColor: 'black',
         tabBarLabelStyle: {paddingBottom: 5, fontSize: 10, fontWeight: '900'},
       })}>
@@ -76,7 +82,7 @@ function TheTab({user, setvisiblee}) {
               options={{
                 title: 'Group',
                 headerStyle: {
-                  backgroundColor: '#7961C1',
+                  backgroundColor: MyTheme.colors.primary,
                 },
                 headerTintColor: '#fff',
                 headerTitleStyle: {
@@ -113,11 +119,11 @@ const App = () => {
 
   return (
     <>
-      <NavigationContainer>
+      <NavigationContainer theme={MyTheme}>
         <Stack.Navigator
           screenOptions={{
             headerStyle: {
-              backgroundColor: '#7961C1',
+              backgroundColor: MyTheme.colors.primary,
             },
             headerTintColor: '#fff',
             headerTitleStyle: {
@@ -183,47 +189,3 @@ const App = () => {
 };
 
 export default App;
-
-const styles = StyleSheet.create({
-  image: {
-    flex: 1,
-    width: 30,
-    height: 30,
-    resizeMode: 'contain',
-  },
-  iconColor: {
-    color: '009387',
-  },
-  innerContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  title: {
-    fontSize: 24,
-    marginBottom: 10,
-    color: '#7961C1',
-  },
-  buttonLabel: {
-    fontSize: 22,
-    color: '#7961C1',
-    alignSelf: 'center',
-  },
-  buttonStyle: {
-    borderColor: '#7961C1',
-    height: 50,
-    width: '90%',
-    alignSelf: 'center',
-    marginTop: 20,
-    justifyContent: 'center',
-    borderWidth: 1,
-  },
-  inputStyle: {
-    height: 54,
-    width: '90%',
-    alignSelf: 'center',
-    borderBottomWidth: 1,
-    borderBottomColor: '#7961C1',
-    color: 'black',
-  },
-});

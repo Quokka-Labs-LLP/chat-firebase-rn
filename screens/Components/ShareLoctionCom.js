@@ -1,4 +1,5 @@
-import React, {useState, useEffect, useCallback} from 'react';
+/* eslint-disable react-native/no-inline-styles */
+import React, {useState, useEffect} from 'react';
 import {
   View,
   Modal,
@@ -9,20 +10,19 @@ import {
   TouchableWithoutFeedback,
   PermissionsAndroid,
   Platform,
-  Linking,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 Icon.loadFont().then();
 import Geolocation from 'react-native-geolocation-service';
-import MapView, {Marker, PROVIDER_GOOGLE} from 'react-native-maps';
+import {useTheme} from '@react-navigation/native';
+
 function ShareLoctionCom({visible, onClose, onSelect}) {
-  const [userMembers, setuserMembers] = useState([]);
-  const [selected, setSelected] = useState([]);
+  const {primary} = useTheme().colors;
   const [location, setLocation] = useState(false);
 
   useEffect(() => {
     getLocation();
-  });
+  }, []);
   const returnUrl = () => {
     //   To open url with custom label ios/android:
 
@@ -96,7 +96,11 @@ function ShareLoctionCom({visible, onClose, onSelect}) {
         <View onPress={onClose} style={{flex: 1, justifyContent: 'center'}}>
           <View style={styles.container}>
             {/* <Text style={styles.shareLocText}>Location</Text> */}
-            <View style={styles.shareLocBottom}></View>
+            {/* <View
+              style={[
+                styles.shareLocBottom,
+                {backgroundColor: primary},
+              ]}></View> */}
             <View
               style={{
                 width: '80%',
@@ -128,7 +132,9 @@ function ShareLoctionCom({visible, onClose, onSelect}) {
             <TouchableOpacity
               onPress={() => returnUrl()}
               style={{alignSelf: 'center', position: 'absolute', bottom: '5%'}}>
-              <Text style={styles.shareLocText}>Share Location</Text>
+              <Text style={[styles.shareLocText, {color: primary}]}>
+                Share Location
+              </Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -147,7 +153,6 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
   },
   shareLocText: {
-    color: '#7961C1',
     fontWeight: 'bold',
     fontSize: 16,
     alignSelf: 'center',
@@ -156,7 +161,6 @@ const styles = StyleSheet.create({
   shareLocBottom: {
     width: '80%',
     height: 1,
-    backgroundColor: '#7961C1',
     alignSelf: 'center',
     marginTop: 20,
   },

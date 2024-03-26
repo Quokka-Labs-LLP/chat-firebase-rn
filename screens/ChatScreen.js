@@ -1,3 +1,5 @@
+/* eslint-disable react-hooks/exhaustive-deps */
+/* eslint-disable react-native/no-inline-styles */
 import React, {useEffect, useState, useCallback, useRef} from 'react';
 import {
   Text,
@@ -23,7 +25,6 @@ import {
 } from './helper/hepler';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import {launchCamera} from 'react-native-image-picker';
-
 import {GiftedChat, Bubble, InputToolbar, Send} from 'react-native-gifted-chat';
 import firestore from '@react-native-firebase/firestore';
 import DocumentPicker from 'react-native-document-picker';
@@ -36,7 +37,10 @@ import FileSelection from './Components/FileSelection';
 import ShareLoctionCom from './Components/ShareLoctionCom';
 import ShareContect from './Components/ShareContect';
 import DownloadButton from './Components/DownloadButton';
+import {useTheme} from '@react-navigation/native';
+
 const ChatScreen = ({user, route, navigation}) => {
+  const {colors} = useTheme();
   const [messages, setMessages] = useState([]);
   const {uid, from, fcmToken, item} = route.params;
   const [isAttachImage, setIsAttachImage] = useState(false);
@@ -74,7 +78,7 @@ const ChatScreen = ({user, route, navigation}) => {
     return () => {
       unsubscribe();
     };
-  }, []);
+  });
 
   useEffect(() => {
     function onResult(QuerySnapshot) {
@@ -86,14 +90,14 @@ const ChatScreen = ({user, route, navigation}) => {
       .where('uid', 'in', from == 'group' ? fcmToken : [uid])
       .onSnapshot(onResult);
     return () => unsubscribe;
-  }, []); // Ensure that the dependency array is empty to mimic componentDidMount behavior
+  }); // Ensure that the dependency array is empty to mimic componentDidMount behavior
 
   useEffect(() => {
     storage.set('sessionName', uid);
     return () => {
       storage.delete('sessionName');
     };
-  }, []);
+  });
 
   useEffect(() => {
     const getUserName = async () => {
@@ -106,6 +110,7 @@ const ChatScreen = ({user, route, navigation}) => {
     };
     if (from == 'group') {
       navigation.setOptions({
+        // eslint-disable-next-line react/no-unstable-nested-components
         headerRight: () => (
           <View style={{flexDirection: 'row'}}>
             {user.uid == item.createdBy && (
@@ -300,7 +305,7 @@ const ChatScreen = ({user, route, navigation}) => {
   const renderChatFooter = useCallback(() => {
     if (isAttachImage && selecedfiles.length > 0) {
       return (
-        <View style={styles.chatFooter}>
+        <View style={[styles.chatFooter, {backgroundColor: colors.primary}]}>
           <ScrollView horizontal>
             {selecedfiles.map(item => {
               return (
@@ -311,7 +316,8 @@ const ChatScreen = ({user, route, navigation}) => {
                       height: 75,
                       width: 75,
                       justifyContent: 'center',
-                    }}></ImageBackground>
+                    }}
+                  />
                   <Icon
                     name={'close-circle-sharp'}
                     onPress={() => diccardSelectedFiles(item.name)}
@@ -327,7 +333,7 @@ const ChatScreen = ({user, route, navigation}) => {
     }
     if (isAttachFile) {
       return (
-        <View style={styles.chatFooter}>
+        <View style={[styles.chatFooter, {backgroundColor: colors.primary}]}>
           <InChatFileTransfer filePath={filePath} />
           <Icon
             name={'close-circle-sharp'}
@@ -343,7 +349,7 @@ const ChatScreen = ({user, route, navigation}) => {
     }
     if (sharLocation) {
       return (
-        <View style={styles.chatFooter}>
+        <View style={[styles.chatFooter, {backgroundColor: colors.primary}]}>
           <InChatFileTransfer filePath={sharLocation} />
           <Icon
             name={'close-circle-sharp'}
@@ -358,7 +364,7 @@ const ChatScreen = ({user, route, navigation}) => {
     }
     if (selectedContect) {
       return (
-        <View style={styles.chatFooter}>
+        <View style={[styles.chatFooter, {backgroundColor: colors.primary}]}>
           <InChatFileTransfer
             filePath={`con.${selectedContect.name}. ${selectedContect.phone}`}
           />
@@ -512,7 +518,7 @@ const ChatScreen = ({user, route, navigation}) => {
               ...styles.fileContainer,
               backgroundColor:
                 props.currentMessage.user._id === user.uid
-                  ? '#7961C1'
+                  ? colors.primary
                   : 'lightgrey',
               borderBottomLeftRadius:
                 props.currentMessage.user._id === user.uid ? 15 : 5,
@@ -531,6 +537,7 @@ const ChatScreen = ({user, route, navigation}) => {
               if (currentMessage.location) {
                 Linking.openURL(currentMessage.location);
               } else if (currentMessage.contact) {
+                let phoneNumber;
                 if (Platform.OS !== 'android') {
                   phoneNumber = `telprompt:${currentMessage.contact.phone}`;
                 } else {
@@ -612,7 +619,7 @@ const ChatScreen = ({user, route, navigation}) => {
           renderUsernameOnMessage={from == 'group' ? true : false}
           wrapperStyle={{
             right: {
-              backgroundColor: '#7961C1',
+              backgroundColor: colors.primary,
             },
             left: {
               backgroundColor: 'lightgrey',
@@ -633,7 +640,7 @@ const ChatScreen = ({user, route, navigation}) => {
   const scrollToBottomComponent = () => {
     return <FontAwesome name="angle-double-down" size={22} color="#333" />;
   };
-  renderTicks = currentMessage => {
+  const renderTicks = currentMessage => {
     if (currentMessage.user._id !== user.uid) {
       return;
     }
@@ -667,7 +674,7 @@ const ChatScreen = ({user, route, navigation}) => {
             <InputToolbar
               {...props}
               containerStyle={{
-                borderTopColor: '#7961C1',
+                borderTopColor: colors.primary,
               }}
               textInputStyle={{
                 color: 'black',
@@ -731,59 +738,6 @@ const ChatScreen = ({user, route, navigation}) => {
 export default ChatScreen;
 
 export const styles = StyleSheet.create({
-  Contain: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  Container: {
-    marginTop: 32,
-    paddingHorizontal: 24,
-  },
-  card: {
-    width: '100%',
-    height: 'auto',
-    marginHorizontal: 4,
-    marginVertical: 6,
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-  },
-  sectionTitle: {
-    fontSize: 24,
-    fontWeight: '600',
-  },
-  imageContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  userImage: {
-    paddingTop: 15,
-    paddingBottom: 15,
-  },
-  userImageST: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-  },
-  textArea: {
-    flexDirection: 'column',
-    justifyContent: 'center',
-    padding: 5,
-    paddingLeft: 10,
-    width: 300,
-    backgroundColor: 'transparent',
-    borderBottomWidth: 1,
-    borderBottomColor: '#cccccc',
-  },
-  userText: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  nameText: {
-    fontSize: 14,
-    fontWeight: '900',
-    fontFamily: 'Verdana',
-  },
   fileContainer: {
     flex: 1,
     maxWidth: 300,
@@ -797,49 +751,15 @@ export const styles = StyleSheet.create({
     marginLeft: 10,
     marginRight: 5,
   },
-  msgTime: {
-    textAlign: 'right',
-    fontSize: 11,
-    marginTop: -20,
-  },
-  msgContent: {
-    paddingTop: 5,
-  },
-  sectionDescription: {
-    marginTop: 8,
-    fontSize: 18,
-    fontWeight: '400',
-  },
-  highlight: {
-    fontWeight: '700',
-  },
   sendContainer: {
     padding: 8,
-  },
-  video: {
-    width: '92%',
-    aspectRatio: 16 / 9,
-    marginTop: 10,
-    marginLeft: '4%',
-    marginRight: '4%',
-    alignSelf: 'center',
-    justifyContent: 'center',
   },
   paperClip: {
     padding: 8,
   },
   chatFooter: {
-    backgroundColor: '#7961C1',
     flexDirection: 'row',
     padding: 7,
-  },
-  textFooterChat: {
-    backgroundColor: 'lightblack',
-    borderRadius: 40,
-    color: 'white',
-    width: 20,
-    height: 20,
-    justifyContent: 'center',
   },
   msgTimetext: {
     alignSelf: 'flex-end',

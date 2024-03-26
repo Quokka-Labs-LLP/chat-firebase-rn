@@ -4,18 +4,17 @@ import {
   Modal,
   StyleSheet,
   Dimensions,
-  ActivityIndicator,
   FlatList,
-  ScrollView,
-  ImageBackground,
   Image,
 } from 'react-native';
 import Pdf from 'react-native-pdf';
 import Icon from 'react-native-vector-icons/AntDesign';
 import DownloadButton from './DownloadButton';
 import VideoPlayer from './VideoPlayer';
+import {useTheme} from '@react-navigation/native';
 
 function InChatViewFile({props, visible, filee, onClose}) {
+  const {primary} = useTheme().colors;
   const source = {uri: props.file.url, cache: true};
   const imaages = props.image;
   const vedios = props.vedio;
@@ -44,7 +43,7 @@ function InChatViewFile({props, visible, filee, onClose}) {
         />
         <View
           style={{
-            backgroundColor: '#7961C1',
+            backgroundColor: primary,
             width: 50,
             height: 50,
             alignItems: 'center',
@@ -76,7 +75,7 @@ function InChatViewFile({props, visible, filee, onClose}) {
         <VideoPlayer Uri={item.item} />
         <View
           style={{
-            backgroundColor: '#7961C1',
+            backgroundColor: primary,
             width: 50,
             height: 50,
             alignItems: 'center',

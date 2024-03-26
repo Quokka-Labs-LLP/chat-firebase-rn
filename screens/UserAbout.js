@@ -1,21 +1,15 @@
-import React, {useState, useEffect} from 'react';
-import {
-  View,
-  Text,
-  Image,
-  TouchableOpacity,
-  FlatList,
-  StyleSheet,
-} from 'react-native';
+/* eslint-disable react-native/no-inline-styles */
+import React from 'react';
+import {View, Text, Image, StyleSheet} from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
+import {useTheme} from '@react-navigation/native';
 
 const UserAbout = ({user, route, navigation}) => {
-  const {name, item} = route.params;
-  console.log('-------------item', item);
-
+  const {item} = route.params;
+  const {primary} = useTheme().colors;
   return (
     <View style={styles.Contain}>
-      <View style={styles.userImageSTT}>
+      <View style={[styles.userImageSTT, {backgroundColor: primary}]}>
         {item?.profilePic ? (
           <Image
             style={styles.groupImage}
@@ -62,40 +56,15 @@ const styles = StyleSheet.create({
   },
   userImageSTT: {
     alignSelf: 'center',
-    backgroundColor: '#7961C1',
     height: '20%',
     width: '40%',
     marginTop: '10%',
     borderRadius: 200,
     justifyContent: 'center',
   },
-  userImageST: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    alignSelf: 'center',
-    backgroundColor: '#7961C1',
-    justifyContent: 'center',
-  },
   groupImage: {
     width: '100%',
     height: '100%',
     borderRadius: 100,
-  },
-  textArea: {
-    flexDirection: 'column',
-    justifyContent: 'center',
-    padding: 5,
-    paddingLeft: 10,
-    width: 300,
-    backgroundColor: 'transparent',
-    borderBottomWidth: 1,
-    borderBottomColor: '#cccccc',
-  },
-  nameText: {
-    fontSize: 14,
-    fontWeight: '900',
-    fontFamily: 'Verdana',
-    color: 'black',
   },
 });

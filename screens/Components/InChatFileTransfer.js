@@ -1,13 +1,5 @@
 import React, {useState, useEffect} from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  Image,
-  Pressable,
-  Linking,
-  ImageBackground,
-} from 'react-native';
+import {View, Text, StyleSheet, ImageBackground} from 'react-native';
 import Icon from 'react-native-vector-icons/AntDesign';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import Feather from 'react-native-vector-icons/Feather';
@@ -37,7 +29,7 @@ const InChatFileTransfer = ({filePath, imediaArry}) => {
   useEffect(() => {
     _onFinishedPlayingSubscription = SoundPlayer.addEventListener(
       'FinishedPlaying',
-      ({success}) => {
+      ({}) => {
         setplayaudio(false);
       },
     );

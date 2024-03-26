@@ -1,23 +1,21 @@
-import React, {useState, useEffect, useCallback} from 'react';
+/* eslint-disable react-native/no-inline-styles */
+import React, {useState, useEffect} from 'react';
 import {
   View,
   Modal,
-  TouchableOpacity,
   StyleSheet,
   Text,
-  Image,
   TouchableWithoutFeedback,
   PermissionsAndroid,
-  Platform,
-  Linking,
   FlatList,
 } from 'react-native';
 import Contacts from 'react-native-contacts';
-
+import {useTheme} from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/Ionicons';
 Icon.loadFont().then();
 
 function ShareContect({visible, onClose, onSelect}) {
+  const {primary} = useTheme().colors;
   const [contects, setcontects] = useState([]);
   const [selected, setSelected] = useState();
 
@@ -53,7 +51,9 @@ function ShareContect({visible, onClose, onSelect}) {
         <View style={styles.contactCon}>
           <View style={styles.imgCon}>
             <View style={styles.placeholder}>
-              <Text style={styles.txt}>{item?.givenName[0]}</Text>
+              <Text style={[styles.txt, {color: primary}]}>
+                {item?.givenName[0]}
+              </Text>
             </View>
           </View>
           <View style={styles.contactDat}>
@@ -69,7 +69,7 @@ function ShareContect({visible, onClose, onSelect}) {
           item?.phoneNumbers[0]?.number == selected?.phoneNumbers[0]?.number ? (
             <Icon
               name="checkmark-circle"
-              color={'#7961C1'}
+              color={primary}
               size={25}
               onPress={onClose}
             />
@@ -78,6 +78,7 @@ function ShareContect({visible, onClose, onSelect}) {
       </TouchableWithoutFeedback>
     );
   };
+  // eslint-disable-next-line react/no-unstable-nested-components
   const ListEmptyComponent = () => {
     return <Text>Loding..</Text>;
   };
@@ -92,7 +93,11 @@ function ShareContect({visible, onClose, onSelect}) {
       <TouchableWithoutFeedback onPress={onClose}>
         <View style={{flex: 1, justifyContent: 'center'}}>
           <View style={styles.container}>
-            <View style={styles.shareLocBottom}></View>
+            <View
+              style={[
+                styles.shareLocBottom,
+                {backgroundColor: primary},
+              ]}></View>
             <View
               style={{
                 width: '80%',
@@ -109,22 +114,9 @@ function ShareContect({visible, onClose, onSelect}) {
                 style={{flex: 1}}
               />
             </View>
-
-            {/* <TouchableOpacity
-              onPress={() => {
-                onSelect(
-                  selected && {
-                    name: selected?.givenName,
-                    phone: selected.phoneNumbers[0]?.number,
-                  },
-                );
-              }}
-              style={{alignSelf: 'center', position: 'absolute', bottom: '5%'}}>
-              <Text style={styles.shareLocText}>Share Contact</Text>
-            </TouchableOpacity> */}
             <View
               style={{
-                backgroundColor: '#7961C1',
+                backgroundColor: primary,
                 width: 50,
                 height: 50,
                 position: 'absolute',
@@ -167,17 +159,9 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: 0,
   },
-  shareLocText: {
-    color: '#7961C1',
-    fontWeight: 'bold',
-    fontSize: 16,
-    alignSelf: 'center',
-    marginTop: 12,
-  },
   shareLocBottom: {
     width: '80%',
     height: 1,
-    backgroundColor: '#7961C1',
     alignSelf: 'center',
     marginTop: 20,
   },
@@ -208,7 +192,6 @@ const styles = StyleSheet.create({
   },
   txt: {
     fontSize: 18,
-    color: '#7961C1',
   },
   name: {
     fontSize: 16,

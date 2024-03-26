@@ -1,8 +1,8 @@
+/* eslint-disable react-native/no-inline-styles */
 import React, {useState} from 'react';
 import {
   View,
   Text,
-  Dimensions,
   StyleSheet,
   TouchableOpacity,
   Platform,
@@ -11,7 +11,11 @@ import {
 import auth from '@react-native-firebase/auth';
 import firestore from '@react-native-firebase/firestore';
 import {storage} from './Notification/NotificationController';
+import {useTheme} from '@react-navigation/native';
+
+// eslint-disable-next-line no-undef
 export default SignupScreen = ({navigation}) => {
+  const {primary} = useTheme().colors;
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -28,6 +32,7 @@ export default SignupScreen = ({navigation}) => {
   //Register user
   const userRegistration = async () => {
     if (!email || !password || !name) {
+      // eslint-disable-next-line no-alert
       alert('Please fill out the empty fields');
       return;
     }
@@ -46,6 +51,7 @@ export default SignupScreen = ({navigation}) => {
           fcmToken: storage.getString('fcmtoken'),
         });
     } catch (err) {
+      // eslint-disable-next-line no-alert
       alert('Registration Unsuccessful! Try again');
     }
   };
@@ -56,6 +62,7 @@ export default SignupScreen = ({navigation}) => {
         styles.container,
         {
           paddingTop: 35,
+          backgroundColor: primary,
         },
       ]}>
       <View style={styles.header}>
@@ -131,7 +138,7 @@ export default SignupScreen = ({navigation}) => {
           style={[
             styles.signIn,
             {
-              borderColor: '#7961C1',
+              borderColor: primary,
               borderWidth: 1,
               marginTop: 15,
             },
@@ -140,7 +147,7 @@ export default SignupScreen = ({navigation}) => {
             style={[
               styles.textSign,
               {
-                color: '#7961C1',
+                color: primary,
               },
             ]}>
             {' '}
@@ -159,13 +166,9 @@ export default SignupScreen = ({navigation}) => {
   );
 };
 
-const {height} = Dimensions.get('screen');
-const height_logo = height * 0.28;
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#7961C1',
   },
   header: {
     flex: 1,
@@ -213,10 +216,6 @@ const styles = StyleSheet.create({
     marginTop: Platform.OS === 'ios' ? 0 : -12,
     paddingLeft: 10,
     color: '#05375a',
-  },
-  button: {
-    alignItems: 'center',
-    marginTop: 50,
   },
   signIn: {
     width: '100%',

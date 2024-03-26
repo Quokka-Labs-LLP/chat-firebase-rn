@@ -1,18 +1,21 @@
+/* eslint-disable react-native/no-inline-styles */
 import React, {useEffect, useState} from 'react';
 import {View, Text} from 'react-native';
 import {
   getLetestmsg,
   getunSeenmessgcount,
   timeFormatone,
-  timeFormat,
 } from '../helper/hepler';
 import firestore from '@react-native-firebase/firestore';
+import {useTheme} from '@react-navigation/native';
 
 const GetLetestMessage = ({userId, recId, from}) => {
+  const {primary} = useTheme().colors;
   const docid = recId > userId ? userId + '-' + recId : recId + '-' + userId;
   const [message, setmessage] = useState('');
   const [msgtime, setmsgtime] = useState('');
   const [unseenCount, setanseencount] = useState([]);
+
   useEffect(() => {
     function onResult(QuerySnapshot) {
       const letestMessage = getLetestmsg(QuerySnapshot);
@@ -71,13 +74,13 @@ const GetLetestMessage = ({userId, recId, from}) => {
 
       {unseenCount.length > 0 && (
         <View style={{marginTop: -20}}>
-          <Text style={{color: '#7961C1', fontSize: 12, padding: 3}}>
+          <Text style={{color: primary, fontSize: 12, padding: 3}}>
             {msgtime}
           </Text>
           <View
             style={{
               color: 'white',
-              backgroundColor: '#7961C1',
+              backgroundColor: primary,
               borderRadius: 20,
               height: 20,
               width: 20,

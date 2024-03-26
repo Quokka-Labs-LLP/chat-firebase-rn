@@ -1,11 +1,11 @@
-import React, {useState, useEffect, useCallback} from 'react';
+/* eslint-disable react-native/no-inline-styles */
+import React from 'react';
 import {
   View,
   Modal,
   TouchableOpacity,
   StyleSheet,
   Text,
-  FlatList,
   TouchableWithoutFeedback,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
@@ -13,46 +13,15 @@ Icon.loadFont().then();
 import DocumentPicker from 'react-native-document-picker';
 
 function FileSelection({visible, onClose, onSelect}) {
-  const [userMembers, setuserMembers] = useState([]);
-  const [selected, setSelected] = useState([]);
-  const [selectedFcm, setSelectedfcm] = useState([]);
-
-  const selectMemeber = contect => {
-    // const index = selected.indexOf(id);
-    // const tokenindex = selectedFcm.indexOf(fcmToken);
-    // if (index === -1) {
-    //   setSelected([...selected, id]);
-    //   setSelectedfcm([...selectedFcm, fcmToken]);
-    // } else {
-    //   const updatedSelected = selected.filter(itemId => itemId !== id);
-    //   const updatedFcm = selectedFcm.filter(itemId => itemId !== fcmToken);
-    //   setSelected(updatedSelected);
-    //   setSelectedfcm(updatedFcm);
-    // }
-  };
-  const renderCheckIcon = useCallback(
-    id => {
-      if (selected.indexOf(id) !== -1)
-        return (
-          <Icon
-            name="checkmark-circle"
-            color={'#7961C1'}
-            size={30}
-            onPress={onClose}
-          />
-        );
-    },
-    [selected],
-  );
   return (
     <Modal
       visible={visible}
       onRequestClose={onClose}
       transparent={true}
-      style={{flex: 1}}
+      style={styles.contain}
       animationType="slide">
       <TouchableWithoutFeedback onPress={() => onClose()}>
-        <View style={{flex: 1}}>
+        <View style={styles.contain}>
           <View style={styles.container}>
             <View style={styles.card}>
               <TouchableOpacity
@@ -147,15 +116,8 @@ function FileSelection({visible, onClose, onSelect}) {
 }
 export default FileSelection;
 const styles = StyleSheet.create({
-  buttonCancel: {
-    width: 35,
-    height: 35,
-    borderRadius: 50,
-    justifyContent: 'center',
-    alignItems: 'center',
-    position: 'absolute',
-    borderColor: 'black',
-    left: 13,
+  contain: {
+    flex: 1,
   },
   card: {
     width: '70%',
@@ -163,30 +125,6 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     flexDirection: 'row',
     alignContent: 'center',
-  },
-  userImageST: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    alignSelf: 'center',
-    backgroundColor: '#7961C1',
-    justifyContent: 'center',
-  },
-  textArea: {
-    flexDirection: 'column',
-    justifyContent: 'center',
-    padding: 5,
-    paddingLeft: 10,
-    width: 300,
-    backgroundColor: 'transparent',
-    borderBottomWidth: 1,
-    borderBottomColor: '#cccccc',
-  },
-  nameText: {
-    fontSize: 14,
-    fontWeight: '900',
-    fontFamily: 'Verdana',
-    color: 'black',
   },
   container: {
     height: '40%',
@@ -198,19 +136,5 @@ const styles = StyleSheet.create({
     borderRadius: 40,
     alignSelf: 'center',
     justifyContent: 'space-around',
-  },
-  msgContent: {
-    paddingTop: 5,
-    color: 'black',
-  },
-
-  iconStyle: {
-    alignSelf: 'flex-end',
-    position: 'absolute',
-    bottom: 25,
-    right: 30,
-    backgroundColor: '#7961C1',
-    padding: 10,
-    borderRadius: 5,
   },
 });

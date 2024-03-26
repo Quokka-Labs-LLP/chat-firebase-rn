@@ -6,17 +6,19 @@ import {
   StyleSheet,
   SafeAreaView,
   StatusBar,
-  ScrollView,
   FlatList,
   Image,
   Modal,
   TextInput,
 } from 'react-native';
+import {useTheme} from '@react-navigation/native';
+
 import firestore from '@react-native-firebase/firestore';
 import Icon from 'react-native-vector-icons/Ionicons';
 import {getAllGroups, sortGrups, capitalizeFirstLetter} from './helper/hepler';
 import GetLetestMessage from './Components/GetLetestMessage';
 const GroupScreen = ({route, navigation}) => {
+  const {colors} = useTheme();
   const [groups, setgroups] = useState(null);
   const [visible, setvisible] = useState(false);
   const [channelName, setChannelName] = useState('');
@@ -96,10 +98,17 @@ const GroupScreen = ({route, navigation}) => {
                   })
                 }>
                 <View style={styles.card}>
-                  <View style={styles.userImageST}>
+                  <View
+                    style={[
+                      styles.userImageST,
+                      {backgroundColor: colors.primary},
+                    ]}>
                     {item.groupImage ? (
                       <Image
-                        style={styles.userImageST}
+                        style={[
+                          styles.userImageST,
+                          {backgroundColor: colors.primary},
+                        ]}
                         resizeMode="cover"
                         source={{uri: item.groupImage}}
                       />
@@ -129,9 +138,10 @@ const GroupScreen = ({route, navigation}) => {
           />
         </View>
       </SafeAreaView>
-      <View
+      <TouchableOpacity
+        onPress={() => setvisible(!visible)}
         style={{
-          backgroundColor: '#7961C1',
+          backgroundColor: colors.primary,
           width: 50,
           height: 50,
           position: 'absolute',
@@ -143,12 +153,11 @@ const GroupScreen = ({route, navigation}) => {
         }}>
         <Icon
           name="add"
-          onPress={() => setvisible(!visible)}
           size={25}
           color="white"
           style={{alignSelf: 'center'}}
         />
-      </View>
+      </TouchableOpacity>
       <Modal
         visible={visible}
         onRequestClose={() => setvisible(!visible)}
@@ -157,7 +166,7 @@ const GroupScreen = ({route, navigation}) => {
         style={{height: 400}}>
         <View
           style={{
-            height: '60%',
+            height: '80%',
             width: '97%',
             backgroundColor: 'white',
             position: 'absolute',
@@ -168,13 +177,15 @@ const GroupScreen = ({route, navigation}) => {
           }}>
           <Icon
             name="close-circle-outline"
-            color={'#7961C1'}
+            color={colors.primary}
             size={30}
             onPress={() => setvisible(!visible)}
             style={{alignSelf: 'flex-end', padding: 10}}
           />
           <View style={styles.innerContainer}>
-            <Text style={styles.title}>Create a new Group</Text>
+            <Text style={[styles.title, {color: colors.primary}]}>
+              Create a new Group
+            </Text>
             <TextInput
               placeholder="Group Name"
               placeholderTextColor={'black'}
@@ -182,13 +193,15 @@ const GroupScreen = ({route, navigation}) => {
               value={channelName}
               onChangeText={text => setChannelName(text)}
               clearButtonMode="while-editing"
-              style={styles.inputStyle}
+              style={[styles.inputStyle, {borderBottomColor: colors.primary}]}
             />
             <TouchableOpacity
-              style={styles.buttonStyle}
+              style={[styles.buttonStyle, {borderColor: colors.primary}]}
               onPress={() => createRoom()}
               disabled={channelName.length === 0}>
-              <Text style={styles.buttonLabel}>Create</Text>
+              <Text style={[styles.buttonLabel, {color: colors.primary}]}>
+                Create
+              </Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -217,7 +230,6 @@ const styles = StyleSheet.create({
     height: 50,
     borderRadius: 25,
     alignSelf: 'center',
-    backgroundColor: '#7961C1',
     justifyContent: 'center',
   },
   textArea: {
@@ -230,34 +242,26 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: '#cccccc',
   },
-
   nameText: {
     fontSize: 14,
     fontWeight: '900',
     fontFamily: 'Verdana',
     color: 'black',
   },
-  msgContent: {
-    paddingTop: 5,
-    color: 'black',
-  },
   innerContainer: {
     flex: 1,
-    justifyContent: 'center',
     alignItems: 'center',
+    marginTop: '10%',
   },
   title: {
     fontSize: 24,
     marginBottom: 10,
-    color: '#7961C1',
   },
   buttonLabel: {
     fontSize: 22,
-    color: '#7961C1',
     alignSelf: 'center',
   },
   buttonStyle: {
-    borderColor: '#7961C1',
     height: 50,
     width: '90%',
     alignSelf: 'center',
@@ -270,7 +274,6 @@ const styles = StyleSheet.create({
     width: '90%',
     alignSelf: 'center',
     borderBottomWidth: 1,
-    borderBottomColor: '#7961C1',
     color: 'black',
   },
 });
