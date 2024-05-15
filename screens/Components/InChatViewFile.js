@@ -103,12 +103,19 @@ function InChatViewFile({props, visible, filee, onClose}) {
             flexDirection: 'row',
             justifyContent: 'space-between',
           }}>
-          <Icon name={'close'} onPress={onClose} size={25} color={'black'} />
+          <Icon
+            name={'close'}
+            testID={'close-button'}
+            onPress={onClose}
+            size={25}
+            color={'black'}
+          />
           {imaages.length == 0 && <DownloadButton filePath={source.uri} />}
         </View>
 
         {props.file.url && (
           <Pdf
+            testID={'pdf-component'}
             trustAllCerts={false}
             source={source}
             onLoadComplete={(numberOfPages, filePath) => {

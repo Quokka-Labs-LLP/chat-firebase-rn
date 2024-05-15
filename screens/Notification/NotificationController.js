@@ -110,10 +110,6 @@ export const NotificationController = () => {
       .getInitialNotification()
       .then(remoteMessage => {
         if (remoteMessage) {
-          console.log(
-            'getInitialNotification called:' +
-              'Notification caused app to open from quit state',
-          );
           console.log('Remote message => ', remoteMessage);
           naviagteToScreen(remoteMessage.data);
         }

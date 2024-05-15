@@ -26,7 +26,7 @@ import storagee from '@react-native-firebase/storage';
 import DocumentPicker from 'react-native-document-picker';
 import {useTheme} from '@react-navigation/native';
 
-Icon.loadFont().then();
+// Icon.loadFont().then();
 
 const ProfileScreen = ({user}) => {
   const [users, setUsers] = useState(null);

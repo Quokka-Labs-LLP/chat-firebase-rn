@@ -9,7 +9,7 @@ import {
   TouchableWithoutFeedback,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
-Icon.loadFont().then();
+// Icon.loadFont().then();
 import DocumentPicker from 'react-native-document-picker';
 
 function FileSelection({visible, onClose, onSelect}) {
@@ -20,7 +20,9 @@ function FileSelection({visible, onClose, onSelect}) {
       transparent={true}
       style={styles.contain}
       animationType="slide">
-      <TouchableWithoutFeedback onPress={() => onClose()}>
+      <TouchableWithoutFeedback
+        testID="modal-container"
+        onPress={() => onClose()}>
         <View style={styles.contain}>
           <View style={styles.container}>
             <View style={styles.card}>

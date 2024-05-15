@@ -7,7 +7,7 @@ import SoundPlayer from 'react-native-sound-player';
 import {useFocusEffect} from '@react-navigation/native';
 import VideoPlayer from './VideoPlayer';
 
-Icon.loadFont().then();
+// Icon.loadFont().then();
 
 const InChatFileTransfer = ({filePath, imediaArry}) => {
   useFocusEffect(

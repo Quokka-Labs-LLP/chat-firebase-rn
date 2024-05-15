@@ -5,8 +5,6 @@ import {storage} from '../Notification/NotificationController';
 import RNFetchBlob from 'rn-fetch-blob';
 let dirs = RNFetchBlob.fs.dirs;
 
-const db = firestore();
-
 // get all users
 export const getUsers = QuerySnapshot => {
   try {
@@ -218,7 +216,7 @@ export const timeFormatone = timestamp => {
 };
 
 export const capitalizeFirstLetter = str => {
-  return str.charAt(0).toUpperCase() + str.slice(1);
+  return str.trim().charAt(0).toUpperCase() + str.trim().slice(1);
 };
 
 export const timeFormat = dateString => {

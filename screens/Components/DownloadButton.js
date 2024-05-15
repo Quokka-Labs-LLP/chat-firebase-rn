@@ -19,7 +19,7 @@ const DownloadButton = ({filePath}) => {
     });
   };
   return (
-    <View>
+    <View testID="download-button">
       {!check && !lodingg ? (
         <Icon
           name={'arrow-down-sharp'}
@@ -27,9 +27,14 @@ const DownloadButton = ({filePath}) => {
           size={20}
           color={'white'}
           style={{padding: 4}}
+          testID={'download-icon'}
         />
       ) : lodingg ? (
-        <ActivityIndicator size={'small'} color={'white'} />
+        <ActivityIndicator
+          testID="loading-indicator"
+          size={'small'}
+          color={'white'}
+        />
       ) : (
         <Icon
           name={'checkmark'}
@@ -37,6 +42,7 @@ const DownloadButton = ({filePath}) => {
           size={20}
           color={'white'}
           style={{padding: 4}}
+          testID={'checkmark-icon'}
         />
       )}
     </View>

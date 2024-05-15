@@ -17,9 +17,8 @@ import firestore from '@react-native-firebase/firestore';
 import {getUsers, capitalizeFirstLetter} from './helper/hepler';
 import GetLetestMessage from './Components/GetLetestMessage';
 import {useTheme} from '@react-navigation/native';
-import {FirestoreChatMessageHistory} from '@langchain/community/stores/message/firestore';
-// import admin from 'firebase-admin/app';
-Icon.loadFont().then();
+
+// Icon.loadFont().then();
 
 const MessageScreen = ({user, navigation}) => {
   const {colors} = useTheme();
@@ -48,6 +47,7 @@ const MessageScreen = ({user, navigation}) => {
       } else {
         return (
           <Icon
+            // eslint-disable-next-line react-native/no-inline-styles
             style={{alignSelf: 'center'}}
             name={'person'}
             size={25}

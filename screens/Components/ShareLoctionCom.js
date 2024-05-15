@@ -12,7 +12,7 @@ import {
   Platform,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
-Icon.loadFont().then();
+// Icon.loadFont().then();
 import Geolocation from 'react-native-geolocation-service';
 import {useTheme} from '@react-navigation/native';
 

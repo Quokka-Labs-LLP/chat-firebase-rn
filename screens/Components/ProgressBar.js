@@ -10,6 +10,7 @@ export default function ProgressBar({progress}) {
     <View>
       <Svg width={barWidth} height="7">
         <Rect
+          testID={'progress-bar'}
           width={barWidth}
           height={'100%'}
           fill={'#eee'}
@@ -17,6 +18,7 @@ export default function ProgressBar({progress}) {
           ry={3.5}
         />
         <Rect
+          testID={'progress-rect'}
           width={progressWidth}
           height={'100%'}
           fill={'#3478F6'}

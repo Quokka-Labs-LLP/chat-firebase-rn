@@ -12,7 +12,7 @@ import {
 import Contacts from 'react-native-contacts';
 import {useTheme} from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/Ionicons';
-Icon.loadFont().then();
+// Icon.loadFont().then();
 
 function ShareContect({visible, onClose, onSelect}) {
   const {primary} = useTheme().colors;
