@@ -1,17 +1,11 @@
-import React, {useCallback, useRef, useState, useEffect} from 'react';
-import {
-  StyleProp,
-  StyleSheet,
-  TouchableOpacity,
-  TouchableWithoutFeedback,
-  View,
-  ViewStyle,
-  ActivityIndicator,
-} from 'react-native';
+import React, {useState, useEffect} from 'react';
+import {StyleSheet, View} from 'react-native';
 import SoundPlayer from 'react-native-sound-player';
 import Feather from 'react-native-vector-icons/Feather';
+import {useTheme} from '@react-navigation/native';
 
 const AudioPlayer = ({item}) => {
+  const {primary} = useTheme().colors;
   const [playaudio, setplayaudio] = useState(false);
   const [audiodur, setaudiodue] = useState();
   const [playingurl, setplayingurl] = useState('');
@@ -73,7 +67,7 @@ const AudioPlayer = ({item}) => {
         style={{
           height: 50,
           width: 50,
-          backgroundColor: '#009387',
+          backgroundColor: primary,
           margin: 3,
           borderRadius: 40,
           justifyContent: 'center',
@@ -93,7 +87,7 @@ const AudioPlayer = ({item}) => {
           setplayingurl(item._id);
           onPressPlayButton(item.file.url, item._id);
         }}
-        color={'#009387'}
+        color={primary}
       />
     </View>
   );

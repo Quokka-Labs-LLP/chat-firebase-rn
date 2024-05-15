@@ -2,20 +2,94 @@ import React, {useState} from 'react';
 import {
   View,
   Modal,
-  TouchableOpacity,
   StyleSheet,
-  Text,
   Dimensions,
-  ActivityIndicator,
+  FlatList,
+  Image,
 } from 'react-native';
 import Pdf from 'react-native-pdf';
-import Video from 'react-native-video';
+import Icon from 'react-native-vector-icons/AntDesign';
+import DownloadButton from './DownloadButton';
+import VideoPlayer from './VideoPlayer';
+import {useTheme} from '@react-navigation/native';
 
 function InChatViewFile({props, visible, filee, onClose}) {
+  const {primary} = useTheme().colors;
   const source = {uri: props.file.url, cache: true};
-  const [priloading, setpriloading] = useState(true);
-  const [player, setplayer] = useState();
+  const imaages = props.image;
+  const vedios = props.vedio;
 
+  const renderItem = item => {
+    return (
+      <View
+        style={[
+          styles.pdf,
+          {
+            width: Dimensions.get('window').width - 20,
+            justifyContent: 'center',
+            height: 500,
+            borderWidth: 0.4,
+            borderColor: 'black',
+            marginBottom: 5,
+          },
+        ]}>
+        <Image
+          source={{uri: item.item}}
+          resizeMode="cover"
+          style={{
+            height: '100%',
+            width: Dimensions.get('window').width - 25,
+          }}
+        />
+        <View
+          style={{
+            backgroundColor: primary,
+            width: 50,
+            height: 50,
+            alignItems: 'center',
+            borderRadius: 40,
+            position: 'absolute',
+            bottom: '5%',
+            justifyContent: 'center',
+            right: 10,
+          }}>
+          <DownloadButton filePath={item.item} />
+        </View>
+      </View>
+    );
+  };
+  const renderItemvedio = item => {
+    return (
+      <View
+        style={[
+          styles.pdf,
+          {
+            width: Dimensions.get('window').width - 20,
+            justifyContent: 'center',
+            height: 500,
+            borderWidth: 0.4,
+            borderColor: 'black',
+            marginBottom: 5,
+          },
+        ]}>
+        <VideoPlayer Uri={item.item} />
+        <View
+          style={{
+            backgroundColor: primary,
+            width: 50,
+            height: 50,
+            alignItems: 'center',
+            borderRadius: 40,
+            position: 'absolute',
+            bottom: '5%',
+            justifyContent: 'center',
+            right: 10,
+          }}>
+          <DownloadButton filePath={item.item} />
+        </View>
+      </View>
+    );
+  };
   return (
     <Modal
       visible={visible}
@@ -23,13 +97,17 @@ function InChatViewFile({props, visible, filee, onClose}) {
       animationType="slide"
       style={{height: 600}}>
       <View style={styles.container}>
-        <View style={{padding: 20}}>
-          <TouchableOpacity onPress={onClose} style={styles.buttonCancel}>
-            <Text style={styles.textBtn}>X</Text>
-          </TouchableOpacity>
+        <View
+          style={{
+            padding: 20,
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+          }}>
+          <Icon name={'close'} onPress={onClose} size={25} color={'black'} />
+          {imaages.length == 0 && <DownloadButton filePath={source.uri} />}
         </View>
 
-        {props.file.url ? (
+        {props.file.url && (
           <Pdf
             trustAllCerts={false}
             source={source}
@@ -47,41 +125,20 @@ function InChatViewFile({props, visible, filee, onClose}) {
             }}
             style={styles.pdf}
           />
-        ) : (
-          <View style={{flex: 1, justifyContent: 'center'}}>
-            {priloading && (
-              <ActivityIndicator
-                animating
-                color={'#009387'}
-                size="large"
-                style={{
-                  flex: 1,
-                  position: 'absolute',
-                  top: '50%',
-                  left: '45%',
-                }}
-              />
-            )}
-            <Video
-              style={styles.video}
-              source={{uri: props.vedio}}
-              resizeMode="cover"
-              ref={ref => setplayer(ref)}
-              onLoadStart={() => {
-                setpriloading(true);
-              }}
-              onLoad={() => {
-                setpriloading(false);
-              }}
-              bufferConfig={{
-                minBufferMs: 15000,
-                maxBufferMs: 50000,
-                bufferForPlaybackMs: 2500,
-                bufferForPlaybackAfterRebufferMs: 5000,
-              }}
-              filter="CIPhotoEffectFade"
-            />
-          </View>
+        )}
+        {props.image.length > 0 && (
+          <FlatList
+            data={props.image}
+            keyExtractor={item => item}
+            renderItem={renderItem}
+          />
+        )}
+        {props.vedio.length > 0 && (
+          <FlatList
+            data={props.vedio}
+            keyExtractor={item => item}
+            renderItem={renderItemvedio}
+          />
         )}
       </View>
     </Modal>
@@ -107,7 +164,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: 'flex-start',
-    marginTop: 25,
   },
   video: {
     width: '99%',
@@ -119,9 +175,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   pdf: {
-    flex: 1,
     width: Dimensions.get('window').width,
     height: Dimensions.get('window').height,
-    backgroundColor: 'white',
+    alignSelf: 'center',
   },
 });

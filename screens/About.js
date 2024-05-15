@@ -1,3 +1,6 @@
+/* eslint-disable react-hooks/exhaustive-deps */
+/* eslint-disable no-shadow */
+/* eslint-disable react-native/no-inline-styles */
 import React, {useEffect, useState} from 'react';
 import {
   View,
@@ -7,21 +10,27 @@ import {
   StyleSheet,
   Image,
   ActivityIndicator,
+  Platform,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import firestore from '@react-native-firebase/firestore';
 import storagee from '@react-native-firebase/storage';
 import DocumentPicker from 'react-native-document-picker';
 import {sendNotification} from './Notification/NotificationController';
+import {Button} from './Components/Button';
+import {useTheme} from '@react-navigation/native';
+
 const About = ({navigation, route, user}) => {
   const {groupitem} = route.params;
+  const {colors} = useTheme();
   const [groupmembers, setgroupmembers] = useState([]);
   const [grupeImage, setgrupimage] = useState();
   const [lodingtwo, setlodingtwo] = useState(false);
+
   useEffect(() => {
     function onResult(QuerySnapshot) {
       try {
-        function onResult(QuerySnapshot) {
+        function onFcmResult(QuerySnapshot) {
           try {
             const fcmtokens = QuerySnapshot.docs.map(docSnap => docSnap.data());
             setgroupmembers(fcmtokens);
@@ -34,7 +43,7 @@ const About = ({navigation, route, user}) => {
         firestore()
           .collection('users')
           .where('uid', 'in', groupdata.members)
-          .onSnapshot(onResult);
+          .onSnapshot(onFcmResult);
       } catch (error) {
         console.log('docSnap==', error);
       }
@@ -63,14 +72,14 @@ const About = ({navigation, route, user}) => {
       // Add a system message indicating the member removal
       await groupRef.collection('messages').add({
         _id: new Date(),
-        text: `admin removed a member from the group.`,
+        text: 'admin removed a member from the group.',
         createdAt: new Date(),
         system: true,
       });
 
       // Notify the removed member
       sendNotification(
-        `admin removed you from the group.`,
+        'admin removed you from the group.',
         [item.fcmToken],
         'Group Removal',
         user.uid,
@@ -106,14 +115,19 @@ const About = ({navigation, route, user}) => {
         .doc(groupitem.threadId);
 
       // Remove the specified member from the 'members' array
-      await groupRef.update({
-        members: firestore.FieldValue.arrayRemove(user.uid),
-      });
+      groupitem.createdBy == user.uid
+        ? await groupRef.update({
+            createdBy: groupmembers[0].uid,
+            members: firestore.FieldValue.arrayRemove(user.uid),
+          })
+        : await groupRef.update({
+            members: firestore.FieldValue.arrayRemove(user.uid),
+          });
 
       // Add a system message indicating the member removal
       await groupRef.collection('messages').add({
         _id: new Date(),
-        text: `1 member exit from the group.`,
+        text: '1 member exit from the group.',
         createdAt: new Date(),
         system: true,
       });
@@ -122,40 +136,13 @@ const About = ({navigation, route, user}) => {
       console.error('Error removing user from the group:', error);
     }
   };
+  // eslint-disable-next-line react/no-unstable-nested-components
   const ListFooterComponent = () => {
     return (
       <View>
-        <TouchableOpacity
-          onPress={() => exitGroup()}
-          style={{
-            height: 50,
-            width: '93%',
-            borderColor: '#009387',
-            alignSelf: 'center',
-            marginTop: 20,
-            borderWidth: 1,
-            justifyContent: 'center',
-          }}>
-          <Text style={{alignSelf: 'center', color: '#009387'}}>
-            Exit Group
-          </Text>
-        </TouchableOpacity>
+        <Button text={'Exit Group'} onPress={() => exitGroup()} />
         {groupitem.createdBy == user.uid && (
-          <TouchableOpacity
-            onPress={() => handleDeleteGroup()}
-            style={{
-              height: 50,
-              width: '93%',
-              borderColor: '#009387',
-              alignSelf: 'center',
-              marginTop: 20,
-              borderWidth: 1,
-              justifyContent: 'center',
-            }}>
-            <Text style={{alignSelf: 'center', color: '#009387'}}>
-              Delete Group
-            </Text>
-          </TouchableOpacity>
+          <Button text={'Delete Group'} onPress={() => handleDeleteGroup()} />
         )}
       </View>
     );
@@ -192,7 +179,7 @@ const About = ({navigation, route, user}) => {
         type: [DocumentPicker.types.images],
         copyTo: 'documentDirectory',
         mode: 'import',
-        allowMultiSelection: true,
+        allowMultiSelection: false,
       });
       const fileUri = result[0].fileCopyUri;
       if (!fileUri) {
@@ -212,9 +199,68 @@ const About = ({navigation, route, user}) => {
       }
     }
   };
+  // eslint-disable-next-line react/no-unstable-nested-components
+  const GroupMemberItem = ({item, groupitem, user, removeMemberFromGroup}) => {
+    const renderProfilePic = () => {
+      if (item.profilePic) {
+        return (
+          <Image
+            style={styles.userImageST}
+            resizeMode="cover"
+            source={{uri: item.profilePic}}
+          />
+        );
+      } else {
+        return (
+          <Icon
+            style={{alignSelf: 'center'}}
+            name={'person'}
+            size={25}
+            color={'white'}
+          />
+        );
+      }
+    };
+
+    return (
+      <View>
+        <View style={styles.card}>
+          <View style={{flexDirection: 'row'}}>
+            <View
+              style={[styles.userImageST, {backgroundColor: colors.primary}]}>
+              {renderProfilePic()}
+            </View>
+            <View style={styles.textArea}>
+              <Text style={styles.nameText}>{item.name}</Text>
+              <Text style={styles.msgContent}>{item.email}</Text>
+            </View>
+          </View>
+          {groupitem.createdBy === item.uid ? (
+            <View style={styles.adminCon}>
+              <Text
+                style={[
+                  styles.simpleText,
+                  {paddingHorizontal: 3, color: 'white'},
+                ]}>
+                Admin
+              </Text>
+            </View>
+          ) : (
+            groupitem.createdBy === user.uid && (
+              <TouchableOpacity onPress={() => removeMemberFromGroup(item)}>
+                <Text style={[styles.removeText, {color: colors.primary}]}>
+                  Remove
+                </Text>
+              </TouchableOpacity>
+            )
+          )}
+        </View>
+      </View>
+    );
+  };
   return (
     <View style={styles.Contain}>
-      <View style={styles.userImageSTT}>
+      <View style={[styles.userImageSTT, {backgroundColor: colors.primary}]}>
         {grupeImage ? (
           <Image
             style={styles.groupImage}
@@ -229,13 +275,7 @@ const About = ({navigation, route, user}) => {
             color={'white'}
           />
         )}
-        {lodingtwo && (
-          <ActivityIndicator
-            size={'small'}
-            style={{alignSelf: 'center'}}
-            color={'#009387'}
-          />
-        )}
+
         <View
           style={{
             position: 'absolute',
@@ -246,27 +286,21 @@ const About = ({navigation, route, user}) => {
             style={{alignSelf: 'center'}}
             name={'create'}
             size={25}
-            color={'#009387'}
+            color={colors.primary}
             onPress={() => pickImage()}
           />
         </View>
       </View>
+      {lodingtwo && (
+        <ActivityIndicator
+          size={'small'}
+          style={{alignSelf: 'center'}}
+          color={colors.primary}
+        />
+      )}
       <View>
-        <Text
-          style={{
-            alignSelf: 'center',
-            color: 'black',
-            marginVertical: 10,
-            fontSize: 16,
-          }}>
-          {groupitem.name}
-        </Text>
-        <Text
-          style={{
-            alignSelf: 'center',
-            color: 'black',
-            fontSize: 16,
-          }}>
+        <Text style={styles.simpleText}>{groupitem.name}</Text>
+        <Text style={styles.simpleText}>
           {new Date(
             groupitem.grupecreatedAt.seconds * 1000 +
               Math.round(groupitem.grupecreatedAt.nanoseconds / 1e6),
@@ -275,75 +309,22 @@ const About = ({navigation, route, user}) => {
       </View>
 
       <Text
-        style={{
-          color: '#009387',
-          fontWeight: 'bold',
-          fontSize: 16,
-          paddingTop: 5,
-        }}>{`${groupmembers.length} members`}</Text>
+        style={[
+          styles.simpleText,
+          {fontWeight: 'bold'},
+        ]}>{`${groupmembers.length} members`}</Text>
       <FlatList
         data={groupmembers}
         style={{marginTop: 30, width: '100%'}}
         keyExtractor={item => item.uid}
         ListFooterComponent={ListFooterComponent}
         renderItem={({item}) => (
-          <View
-          // onPress={() => selectMemeber(item.uid, item.fcmToken)}
-          >
-            <View style={styles.card}>
-              <View style={{flexDirection: 'row'}}>
-                <View style={styles.userImageST}>
-                  <Icon
-                    style={{alignSelf: 'center'}}
-                    name={'person'}
-                    size={25}
-                    color={'white'}
-                  />
-                </View>
-                <View style={styles.textArea}>
-                  <Text style={styles.nameText}>{item.name}</Text>
-                  <Text style={styles.msgContent}>{item.email}</Text>
-                </View>
-              </View>
-              {groupitem.createdBy == item.uid ? (
-                <View
-                  style={{
-                    right: 50,
-                    alignSelf: 'center',
-                    backgroundColor: '#00bfa5',
-                    borderRadius: 10,
-                  }}>
-                  <Text
-                    style={{
-                      color: 'white',
-                      paddingHorizontal: 6,
-                      paddingVertical: 3,
-                    }}>
-                    Admin
-                  </Text>
-                </View>
-              ) : (
-                groupitem.createdBy == user.uid && (
-                  <TouchableOpacity
-                    onPress={() => removeMemberFromGroup(item)}
-                    style={{
-                      right: 50,
-                      alignSelf: 'center',
-                      borderRadius: 10,
-                    }}>
-                    <Text
-                      style={{
-                        color: '#009387',
-                        paddingHorizontal: 6,
-                        paddingVertical: 3,
-                      }}>
-                      Remove
-                    </Text>
-                  </TouchableOpacity>
-                )
-              )}
-            </View>
-          </View>
+          <GroupMemberItem
+            item={item}
+            groupitem={groupitem}
+            user={user}
+            removeMemberFromGroup={removeMemberFromGroup}
+          />
         )}
       />
     </View>
@@ -358,7 +339,6 @@ const styles = StyleSheet.create({
   },
   userImageSTT: {
     alignSelf: 'center',
-    backgroundColor: '#009387',
     height: '20%',
     width: '40%',
     marginTop: '10%',
@@ -378,7 +358,6 @@ const styles = StyleSheet.create({
     height: 50,
     borderRadius: 25,
     alignSelf: 'center',
-    backgroundColor: '#009387',
     justifyContent: 'center',
   },
   groupImage: {
@@ -402,28 +381,25 @@ const styles = StyleSheet.create({
     fontFamily: 'Verdana',
     color: 'black',
   },
-  container: {
-    height: '70%',
-    width: '100%',
-    marginTop: 25,
-    backgroundColor: 'white',
-    position: 'absolute',
-    bottom: 0,
-    borderTopLeftRadius: 40,
-    borderTopRightRadius: 40,
-  },
   msgContent: {
     paddingTop: 5,
     color: 'black',
   },
-
-  iconStyle: {
-    alignSelf: 'flex-end',
-    position: 'absolute',
-    bottom: 25,
-    right: 30,
-    backgroundColor: '#009387',
-    padding: 10,
-    borderRadius: 5,
+  simpleText: {
+    alignSelf: 'center',
+    color: 'black',
+    marginVertical: 2,
+    fontSize: 16,
+  },
+  adminCon: {
+    right: 50,
+    alignSelf: 'center',
+    backgroundColor: '#00bfa5',
+    borderRadius: 10,
+  },
+  removeText: {
+    paddingHorizontal: 6,
+    paddingVertical: 3,
+    right: 55,
   },
 });

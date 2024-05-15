@@ -1,78 +1,75 @@
 import React, {useCallback, useRef, useState, useEffect} from 'react';
 import {
-  StyleProp,
+  Platform,
   StyleSheet,
   TouchableOpacity,
   TouchableWithoutFeedback,
   View,
-  ViewStyle,
-  ActivityIndicator,
 } from 'react-native';
-import Video, {LoadError, VideoRef} from 'react-native-video';
 import Icon from 'react-native-vector-icons/FontAwesome5';
-// import VideoPlayerr from 'react-native-video-player';
+import {Video, ResizeMode} from 'expo-av';
+import {checkIfFileExists, getLocalUrl} from '../helper/useFileStystem';
 
-const VideoPlayer = ({item}) => {
-  const [priloading, setpriloading] = useState(true);
-  const [pousevedio, setvediopouse] = useState(false);
-  const [player, setplayer] = useState();
-  const videoRef = useRef();
-
+const VideoPlayer = ({Uri}) => {
+  const videoRef = useRef(null);
+  const [status, setStatus] = React.useState({});
   const [paused, setPaused] = useState(true);
-
-  const handleVideoEnd = () => {
-    setvediopouse(true);
-  };
-  const onError = error => {
-    console.log('error', error);
-    setvediopouse(false);
-  };
-
+  const [vediouri, setvediouri] = useState(Uri);
+  useEffect(() => {
+    checkIfFileExists(Uri).then(res => {
+      res &&
+        getLocalUrl(Uri).then(res => {
+          console.log('--------', res);
+          // setvediouri(res);
+        });
+    });
+    console.log(vediouri);
+  }, []);
   return (
-    <View>
-      {priloading && (
-        <ActivityIndicator
-          animating
-          color={'white'}
-          size="large"
-          style={{
-            flex: 1,
-            position: 'absolute',
-            top: '50%',
-            left: '45%',
+    <View
+      style={{
+        justifyContent: 'center',
+        height: 200,
+        width: '100%',
+      }}>
+      <TouchableWithoutFeedback
+        style={{
+          justifyContent: 'center',
+          height: '100%',
+          width: '50%',
+        }}>
+        <Video
+          ref={videoRef}
+          style={styles.video}
+          source={{
+            uri: vediouri,
           }}
+          useNativeControls
+          resizeMode={ResizeMode.COVER}
+          onPlaybackStatusUpdate={status => setStatus(() => status)}
         />
-      )}
+      </TouchableWithoutFeedback>
 
-      {/* <VideoPlayerr
-    video={{ uri: item.vedio }}
-    videoWidth={1600}
-    videoHeight={900}
-    thumbnail={{ uri: 'https://i.picsum.photos/id/866/1600/900.jpg' }}
-/> */}
-      <Video
-        repeat={true}
-        style={styles.video}
-        source={{uri: item.vedio, type: 'm3u8'}}
-        resizeMode="cover"
-        ref={videoRef}
-        playInBackground={false}
-        onLoadStart={() => {
-          setpriloading(true);
-        }}
-        // paused={pousevedio}
-        onEnd={handleVideoEnd}
-        onLoad={() => {
-          setpriloading(false);
-        }}
-        bufferConfig={{
-          minBufferMs: 10000,
-          maxBufferMs: 80000,
-          bufferForPlaybackMs: 2000,
-          bufferForPlaybackAfterRebufferMs: 8000,
-        }}
-        onError={onError}
-      />
+      <View style={[styles.center, styles.playButton]}>
+        {paused && (
+          <TouchableOpacity
+            style={{height: '100%', width: '100%', justifyContent: 'center'}}
+            onPress={() =>
+              status.isPlaying
+                ? videoRef.current.pauseAsync()
+                : videoRef.current.playAsync()
+            }>
+            {!status.isPlaying && (
+              <Icon
+                size={35}
+                color={'white'}
+                name="play"
+                style={{alignSelf: 'center'}}
+              />
+            )}
+          </TouchableOpacity>
+        )}
+      </View>
     </View>
   );
 };
@@ -81,17 +78,19 @@ export default React.memo(VideoPlayer);
 
 const styles = StyleSheet.create({
   video: {
-    width: '92%',
-    aspectRatio: 16 / 9,
-    marginTop: 10,
-    marginLeft: '4%',
-    marginRight: '4%',
-    alignSelf: 'center',
-    justifyContent: 'center',
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    bottom: 0,
+    right: 0,
+  },
+  slider: {
+    width: Platform.OS == 'android' ? '100%' : '95%',
+    marginLeft: Platform.OS === 'ios' ? 10 : 0,
   },
   controls: {
     position: 'absolute',
-
+    width: '100%',
     bottom: 40,
   },
   center: {

@@ -2,7 +2,6 @@ import React, {useState, useEffect} from 'react';
 import {
   View,
   Text,
-  Button,
   Dimensions,
   StyleSheet,
   TouchableOpacity,
@@ -13,7 +12,10 @@ import {
 import auth from '@react-native-firebase/auth';
 import {storage} from './Notification/NotificationController';
 import firestore from '@react-native-firebase/firestore';
+import {useTheme} from '@react-navigation/native';
+
 const SigninScreen = ({navigation}) => {
+  const {primary} = useTheme().colors;
   const [user, setUser] = useState([]);
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -55,6 +57,7 @@ const SigninScreen = ({navigation}) => {
         styles.container,
         {
           paddingTop: 35,
+          backgroundColor: primary,
         },
       ]}>
       <View style={styles.header}>
@@ -80,7 +83,7 @@ const SigninScreen = ({navigation}) => {
             autoCapitalize="none"
             value={email}
             onChangeText={setEmail}
-            placeholderTextColor={'grey'}
+            placeholderTextColor={'black'}
           />
         </View>
         <Text
@@ -101,7 +104,7 @@ const SigninScreen = ({navigation}) => {
             value={password}
             maxLength={10}
             onChangeText={setPassword}
-            placeholderTextColor={'grey'}
+            placeholderTextColor={'black'}
           />
           <TouchableOpacity onPress={updateSecureText}>
             {data.secureTextEntry ? <Text>Show</Text> : <Text>Hide</Text>}
@@ -113,7 +116,7 @@ const SigninScreen = ({navigation}) => {
           style={[
             styles.signIn,
             {
-              borderColor: '#009387',
+              borderColor: primary,
               borderWidth: 1,
               marginTop: 15,
             },
@@ -122,7 +125,7 @@ const SigninScreen = ({navigation}) => {
             style={[
               styles.textSign,
               {
-                color: '#009387',
+                color: primary,
               },
             ]}>
             {' '}
@@ -147,7 +150,6 @@ const height_logo = height * 0.28;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#009387',
   },
   header: {
     flex: 1,
@@ -172,11 +174,7 @@ const styles = StyleSheet.create({
     color: '#05375a',
     fontSize: 18,
   },
-  title: {
-    color: '#05375a',
-    fontSize: 14,
-    fontWeight: 'bold',
-  },
+
   headerTitle: {
     paddingTop: 5,
     color: '#fff',
@@ -195,10 +193,6 @@ const styles = StyleSheet.create({
     marginTop: Platform.OS === 'ios' ? 0 : -12,
     paddingLeft: 10,
     color: '#05375a',
-  },
-  button: {
-    alignItems: 'center',
-    marginTop: 50,
   },
   signIn: {
     width: '100%',

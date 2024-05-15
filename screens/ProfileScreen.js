@@ -1,3 +1,4 @@
+/* eslint-disable react-native/no-inline-styles */
 /**
  * Sample React Native App
  * https://github.com/facebook/react-native
@@ -10,12 +11,10 @@ import React, {useState, useEffect} from 'react';
 import {
   SafeAreaView,
   ScrollView,
-  StatusBar,
   StyleSheet,
   TouchableOpacity,
   Text,
   Image,
-  useColorScheme,
   View,
   Platform,
   ActivityIndicator,
@@ -25,6 +24,7 @@ import auth from '@react-native-firebase/auth';
 import firestore from '@react-native-firebase/firestore';
 import storagee from '@react-native-firebase/storage';
 import DocumentPicker from 'react-native-document-picker';
+import {useTheme} from '@react-navigation/native';
 
 Icon.loadFont().then();
 
@@ -32,6 +32,7 @@ const ProfileScreen = ({user}) => {
   const [users, setUsers] = useState(null);
   const [loding, setloding] = useState(true);
   const [lodingtwo, setlodingtwo] = useState(false);
+  const {primary} = useTheme().colors;
 
   //   const [messages, setMessages] = useState([]);
   //
@@ -48,6 +49,7 @@ const ProfileScreen = ({user}) => {
   useEffect(() => {
     getUsers();
   }, [lodingtwo]);
+
   const geturl = async filename => {
     let imageRef = storagee().ref('/' + filename);
     imageRef
@@ -80,7 +82,7 @@ const ProfileScreen = ({user}) => {
         type: [DocumentPicker.types.images],
         copyTo: 'documentDirectory',
         mode: 'import',
-        allowMultiSelection: true,
+        allowMultiSelection: false,
       });
       const fileUri = result[0].fileCopyUri;
       if (!fileUri) {
@@ -105,7 +107,7 @@ const ProfileScreen = ({user}) => {
       {!loding && (
         <ScrollView>
           <View style={styles.card}>
-            <View style={{backgroundColor: '#009387', borderRadius: 100}}>
+            <View style={{backgroundColor: primary, borderRadius: 100}}>
               {users[0].profilePic ? (
                 <Image
                   style={styles.userImageST}
@@ -131,7 +133,7 @@ const ProfileScreen = ({user}) => {
                   style={{alignSelf: 'center'}}
                   name={'create'}
                   size={25}
-                  color={'#009387'}
+                  color={primary}
                   onPress={() => pickImage()}
                 />
               </View>
@@ -140,18 +142,22 @@ const ProfileScreen = ({user}) => {
               <ActivityIndicator
                 size={'small'}
                 style={{alignSelf: 'center'}}
-                color={'#009387'}
+                color={primary}
               />
             )}
             <View style={styles.textArea}>
-              <Text style={styles.msgContent}>{users[0].name}</Text>
-              <Text style={styles.msgContent}>{users[0].email}</Text>
+              <Text style={[styles.msgContent, {color: primary}]}>
+                {users[0].name}
+              </Text>
+              <Text style={[styles.msgContent, {color: primary}]}>
+                {users[0].email}
+              </Text>
               <TouchableOpacity
                 onPress={() => auth().signOut()}
                 style={[
                   styles.signIn,
                   {
-                    borderColor: '#009387',
+                    borderColor: primary,
                     borderWidth: 1,
                     marginTop: 15,
                   },
@@ -160,7 +166,7 @@ const ProfileScreen = ({user}) => {
                   style={[
                     styles.textSign,
                     {
-                      color: '#009387',
+                      color: primary,
                     },
                   ]}>
                   {' '}
@@ -176,10 +182,6 @@ const ProfileScreen = ({user}) => {
 };
 
 const styles = StyleSheet.create({
-  sectionContainer: {
-    marginTop: 32,
-    paddingHorizontal: 24,
-  },
   signIn: {
     width: '100%',
     height: 50,
@@ -190,18 +192,6 @@ const styles = StyleSheet.create({
   textSign: {
     fontSize: 18,
     fontWeight: 'bold',
-  },
-  sectionTitle: {
-    fontSize: 24,
-    fontWeight: '600',
-  },
-  sectionDescription: {
-    marginTop: 8,
-    fontSize: 18,
-    fontWeight: '400',
-  },
-  highlight: {
-    fontWeight: '700',
   },
   card: {
     width: '100%',
@@ -214,18 +204,6 @@ const styles = StyleSheet.create({
     alignContent: 'center',
     flexDirection: 'column',
     flexWrap: 'wrap',
-  },
-  sectionTitle: {
-    fontSize: 24,
-    fontWeight: '600',
-  },
-  imageContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  userImage: {
-    paddingTop: 15,
-    paddingBottom: 15,
   },
   userImageST: {
     width: 100,
@@ -242,34 +220,9 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: '#cccccc',
   },
-  userText: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  nameText: {
-    fontSize: 14,
-    textAlign: 'center',
-    fontWeight: '900',
-    fontFamily: 'Verdana',
-    color: '#009387',
-  },
-  msgTime: {
-    textAlign: 'right',
-    fontSize: 11,
-    marginTop: -20,
-  },
   msgContent: {
     paddingTop: 5,
     textAlign: 'center',
-    color: '#009387',
-  },
-  sectionDescription: {
-    marginTop: 8,
-    fontSize: 18,
-    fontWeight: '400',
-  },
-  highlight: {
-    fontWeight: '700',
   },
 });
 

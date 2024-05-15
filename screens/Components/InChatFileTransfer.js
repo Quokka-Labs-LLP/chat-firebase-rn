@@ -1,20 +1,15 @@
 import React, {useState, useEffect} from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  Image,
-  Pressable,
-  TouchableOpacity,
-} from 'react-native';
+import {View, Text, StyleSheet, ImageBackground} from 'react-native';
 import Icon from 'react-native-vector-icons/AntDesign';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 import Feather from 'react-native-vector-icons/Feather';
 import SoundPlayer from 'react-native-sound-player';
 import {useFocusEffect} from '@react-navigation/native';
+import VideoPlayer from './VideoPlayer';
 
 Icon.loadFont().then();
 
-const InChatFileTransfer = ({filePath}) => {
+const InChatFileTransfer = ({filePath, imediaArry}) => {
   useFocusEffect(
     React.useCallback(() => {
       return () => {
@@ -29,16 +24,12 @@ const InChatFileTransfer = ({filePath}) => {
     }, []),
   );
   const [playaudio, setplayaudio] = useState(false);
-  const [audiodur, setaudiodue] = useState();
-  const [playingurl, setplayingurl] = useState('');
-
   let _onFinishedPlayingSubscription = null;
   let _onFinishedLoadingURLSubscription = null;
-
   useEffect(() => {
     _onFinishedPlayingSubscription = SoundPlayer.addEventListener(
       'FinishedPlaying',
-      ({success}) => {
+      ({}) => {
         setplayaudio(false);
       },
     );
@@ -73,7 +64,13 @@ const InChatFileTransfer = ({filePath}) => {
   };
   var fileType = '';
   var name = '';
-  if (filePath !== undefined) {
+  var isContect = filePath.slice(0, 3) == 'con';
+  var isImage = filePath.slice(0, 3) == 'img';
+  var isVedio = filePath.slice(0, 3) == 'ved';
+
+  var isLocation =
+    filePath.slice(0, 3) == 'geo' || filePath.slice(0, 3) == 'map';
+  if (filePath !== undefined && !isImage && !isVedio) {
     name = filePath.split('/').pop();
     fileType = filePath.split('.').pop().split('?')[0];
   }
@@ -86,24 +83,93 @@ const InChatFileTransfer = ({filePath}) => {
             onPress={() => onPressPlayButton(filePath)}
             name={playaudio ? 'pause' : 'play'}
             size={25}
-            color={'grey'}
+            color={'black'}
           />
-        ) : (
+        ) : isLocation ? (
+          <Ionicons
+            style={{alignSelf: 'center', padding: 5}}
+            name={'location-outline'}
+            size={25}
+            color={'black'}
+          />
+        ) : isContect ? (
           <Icon
             style={{alignSelf: 'center', padding: 5}}
-            name={fileType == 'mp4' ? 'playcircleo' : 'pdffile1'}
-            size={25}
-            color={'grey'}
+            name={'user'}
+            size={30}
+            color={'black'}
           />
+        ) : (
+          !isImage &&
+          !isVedio && (
+            <Icon
+              style={{alignSelf: 'center', padding: 5}}
+              name={'pdffile1'}
+              size={25}
+              color={'black'}
+            />
+          )
         )}
-        <View>
-          <Text style={styles.text} numberOfLines={1} ellipsizeMode="middle">
-            {name.replace('%20', '').replace(' ', '').replace('%', '')}
-          </Text>
-          <Text style={styles.textType}>
-            {fileType.toUpperCase().slice(0, 3)}
-          </Text>
-        </View>
+        {isVedio && imediaArry.length == 1 ? (
+          <VideoPlayer Uri={imediaArry[0]} />
+        ) : isImage || isVedio ? (
+          <View style={{height: 200, width: '100%'}}>
+            <ImageBackground
+              source={{uri: imediaArry[0]}}
+              style={{
+                height: '100%',
+                width: '100%',
+                backgroundColor: 'white',
+                borderRadius: 10,
+              }}>
+              {imediaArry.length > 1 && (
+                <View
+                  style={{
+                    backgroundColor: 'black',
+                    opacity: imediaArry.length > 1 ? 0.2 : 0,
+                    flex: 1,
+                    justifyContent: 'center',
+                  }}>
+                  <Text
+                    style={{
+                      color: 'black',
+                      alignSelf: 'center',
+                      fontSize: 40,
+                      opacity: 1,
+                    }}>
+                    +{imediaArry.length - 1}
+                  </Text>
+                  <Text
+                    style={{
+                      color: 'black',
+                      alignSelf: 'center',
+                      fontSize: 16,
+                      opacity: 1,
+                    }}>
+                    {imediaArry.length > 1 && isVedio ? 'More clips' : ''}
+                  </Text>
+                </View>
+              )}
+            </ImageBackground>
+          </View>
+        ) : (
+          <View>
+            <Text style={styles.text} numberOfLines={1} ellipsizeMode="middle">
+              {isLocation
+                ? filePath
+                : isContect
+                ? filePath.split('.')[1]
+                : name.replace('%20', '').replace(' ', '').replace('%', '')}
+            </Text>
+            <Text style={styles.textType}>
+              {isLocation
+                ? 'Location'
+                : isContect
+                ? filePath.split('.')[2]
+                : fileType.toUpperCase().slice(0, 3)}
+            </Text>
+          </View>
+        )}
       </View>
     </View>
   );
@@ -122,7 +188,7 @@ const styles = StyleSheet.create({
     marginTop: 10,
     fontSize: 14,
     lineHeight: 20,
-    marginLeft: 5,
+    marginLeft: 12,
     marginRight: 5,
     width: '20%',
   },
@@ -141,10 +207,9 @@ const styles = StyleSheet.create({
     marginLeft: 10,
   },
   frame: {
-    backgroundColor: '#fff',
     flexDirection: 'row',
     borderRadius: 10,
-    padding: 5,
     marginTop: -4,
+    backgroundColor: 'white',
   },
 });

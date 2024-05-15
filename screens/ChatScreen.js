@@ -1,13 +1,15 @@
+/* eslint-disable react-hooks/exhaustive-deps */
+/* eslint-disable react-native/no-inline-styles */
 import React, {useEffect, useState, useCallback, useRef} from 'react';
 import {
   Text,
   TouchableOpacity,
   View,
-  ActivityIndicator,
   Platform,
   ImageBackground,
   StyleSheet,
-  Image,
+  ScrollView,
+  Linking,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import {
@@ -18,8 +20,11 @@ import {
   fileUploadd,
   getFcmTokens,
   getMessages,
+  updateSeenStatus,
+  updateseenstatusgroup,
 } from './helper/hepler';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
+import {launchCamera} from 'react-native-image-picker';
 import {GiftedChat, Bubble, InputToolbar, Send} from 'react-native-gifted-chat';
 import firestore from '@react-native-firebase/firestore';
 import DocumentPicker from 'react-native-document-picker';
@@ -28,26 +33,41 @@ import InChatViewFile from './Components/InChatViewFile';
 import AddUserc from './Components/AddUserc';
 import {sendNotification} from './Notification/NotificationController';
 import {storage} from './Notification/NotificationController';
+import FileSelection from './Components/FileSelection';
+import ShareLoctionCom from './Components/ShareLoctionCom';
+import ShareContect from './Components/ShareContect';
+import DownloadButton from './Components/DownloadButton';
+import {useTheme} from '@react-navigation/native';
+
 const ChatScreen = ({user, route, navigation}) => {
+  const {colors} = useTheme();
   const [messages, setMessages] = useState([]);
   const {uid, from, fcmToken, item} = route.params;
   const [isAttachImage, setIsAttachImage] = useState(false);
   const [isAttachFile, setIsAttachFile] = useState(false);
-  const [imagePath, setImagePath] = useState('');
+  const [selecedfiles, setselectedfiles] = useState([]);
   const [filePath, setFilePath] = useState('');
   const [fileVisible, setFileVisible] = useState(false);
-  const [priloading, setpriloading] = useState(true);
-  const [transe, setTransferred] = useState();
-  const [uplodedimagerul, setuplodedimagerul] = useState('');
+  const [visibleFileSlection, setvisibleFileSlection] = useState(false);
+  const [visibleShareLoc, setvisibleShareLoc] = useState(false);
+  const uploadimageRef = useRef([]);
   const [loding, setloding] = useState(false);
   const [selecteditem, setselecteditem] = useState();
   const [username, setusername] = useState('');
   const [showAddUser, setshowAddUser] = useState(false);
   const [fcmTokenss, setfcmTokens] = useState([]);
+  const [sharLocation, setsharLocation] = useState('');
+  const [shareContect, setshareContect] = useState(false);
+  const [selectedContect, setselectedContect] = useState('');
   useEffect(() => {
     const docid = uid > user.uid ? user.uid + '-' + uid : uid + '-' + user.uid;
     function onResult(QuerySnapshot) {
       setMessages(getMessages(QuerySnapshot));
+      if (from !== 'group') {
+        updateSeenStatus(docid, user.uid);
+      } else {
+        updateseenstatusgroup(uid, user.uid);
+      }
     }
     const unsubscribe = firestore()
       .collection(from == 'group' ? 'THREADS' : 'Chats')
@@ -55,41 +75,29 @@ const ChatScreen = ({user, route, navigation}) => {
       .collection('messages')
       .orderBy('createdAt', 'desc')
       .onSnapshot(onResult);
-    return () => unsubscribe;
-  }, []);
+    return () => {
+      unsubscribe();
+    };
+  });
+
   useEffect(() => {
     function onResult(QuerySnapshot) {
-      // console.log(getFcmTokens(QuerySnapshot));
       setfcmTokens(getFcmTokens(QuerySnapshot));
-      console.log('fcmTokenss     ', fcmTokenss);
-      // try {
-      //   const fcmtokens = QuerySnapshot.docs
-      //     .filter(
-      //       docSnap =>
-      //         docSnap.data().fcmToken !== storage.getString('fcmtoken'),
-      //     )
-      //     .map(docSnap => docSnap.data().fcmToken);
-      //   setfcmTokens(fcmtokens);
-      // } catch (error) {
-      //   console.log('docSnap==', error);
-      // }
     }
-
     // Assuming userIDs is an array of user IDs you want to fetch
     const unsubscribe = firestore()
       .collection('users')
       .where('uid', 'in', from == 'group' ? fcmToken : [uid])
       .onSnapshot(onResult);
-
     return () => unsubscribe;
-  }, []); // Ensure that the dependency array is empty to mimic componentDidMount behavior
+  }); // Ensure that the dependency array is empty to mimic componentDidMount behavior
 
   useEffect(() => {
     storage.set('sessionName', uid);
     return () => {
       storage.delete('sessionName');
     };
-  }, []);
+  });
 
   useEffect(() => {
     const getUserName = async () => {
@@ -102,6 +110,7 @@ const ChatScreen = ({user, route, navigation}) => {
     };
     if (from == 'group') {
       navigation.setOptions({
+        // eslint-disable-next-line react/no-unstable-nested-components
         headerRight: () => (
           <View style={{flexDirection: 'row'}}>
             {user.uid == item.createdBy && (
@@ -129,18 +138,35 @@ const ChatScreen = ({user, route, navigation}) => {
         ),
       });
     }
+
     getUserName();
   }, []);
 
-  const uploadfile = async uploaduri => {
+  const diccardSelectedFiles = filename => {
+    const updatedArry = selecedfiles.filter(item => item.name != filename);
+    setselectedfiles(updatedArry);
+  };
+
+  const uploadfile = async (uploaduri, messages, index) => {
     try {
       await fileUploadd(uploaduri).then(() => {
         getUrl(uploaduri)
           .then(url => {
-            setuplodedimagerul(url);
+            // messages[0]._id =
+            //   messages[0]._id + '-' + Math.floor(Date.now() / 1000);
+            // onSend(messages, uploaduri, url);
+            // setuplodedimagerul(prevUplodedImages => [
+            //   ...prevUplodedImages,
+            //   url,
+            // ]);
+            uploadimageRef.current.push(url);
+            if (index == selecedfiles.length - 1) {
+              console.log('uplodedimagerul=====>>>>>', uploadimageRef.current);
+              setselectedfiles([]);
+              onSend(messages, uploaduri, url);
+            }
           })
           .finally(() => {
-            setpriloading(false);
             setloding(false);
           });
       });
@@ -149,39 +175,85 @@ const ChatScreen = ({user, route, navigation}) => {
     }
   };
 
-  const _pickDocument = async () => {
+  const _pickDocument = async type => {
+    if (type == 'Location') {
+      setvisibleFileSlection(!visibleFileSlection);
+      setvisibleShareLoc(!visibleShareLoc);
+      return;
+    }
+    if (type == 'Contact') {
+      setvisibleFileSlection(!visibleFileSlection);
+      setshareContect(!shareContect);
+      return;
+    }
+    if (type == 'Camera') {
+      const options = {
+        mediaType: 'photo',
+        includeBase64: false,
+        maxHeight: 2000,
+        maxWidth: 2000,
+      };
+
+      launchCamera(options, response => {
+        if (response.didCancel) {
+          console.log('User cancelled camera');
+        } else if (response.error) {
+          console.log('Camera Error: ', response.error);
+        } else {
+          const updatedArray = response.assets.map(item => {
+            return {
+              ...item,
+              fileCopyUri:
+                Platform.OS === 'ios'
+                  ? item.uri.replace('file://', '')
+                  : item.uri,
+            };
+          });
+          setselectedfiles(updatedArray);
+          setvisibleFileSlection(false);
+          setIsAttachImage(true);
+          console.log('selecedfiles,', updatedArray);
+        }
+      });
+      return;
+    }
     try {
       const result = await DocumentPicker.pick({
-        type: [
-          DocumentPicker.types.images,
-          DocumentPicker.types.pdf,
-          DocumentPicker.types.video,
-          DocumentPicker.types.audio,
-        ],
+        type: type,
         copyTo: 'documentDirectory',
         mode: 'import',
-        allowMultiSelection: true,
+        allowMultiSelection:
+          type == 'image/*' ? true : type == 'video/*' ? true : false,
       });
-      const fileUri =
-        Platform.OS === 'ios'
-          ? result[0].fileCopyUri.replace('file://', '')
-          : result[0].fileCopyUri;
-      if (!fileUri) {
+      const updatedArray = result.map(item => {
+        return {
+          ...item,
+          fileCopyUri:
+            Platform.OS === 'ios'
+              ? item.fileCopyUri.replace('file://', '')
+              : item.fileCopyUri,
+        };
+      });
+      if (updatedArray.length == 0) {
         return;
       }
+      console.log('updatedArray', updatedArray);
       if (
-        ['.png', '.jpg', '.mp4', '.mov'].some(extension =>
-          fileUri.includes(extension),
+        ['.png', '.jpg', '.mp4', '.mov', '.webp'].some(extension =>
+          updatedArray[0].fileCopyUri.includes(extension),
         )
       ) {
-        setImagePath(fileUri);
+        setselectedfiles(updatedArray);
+        setvisibleFileSlection(!visibleFileSlection);
         setIsAttachImage(true);
       } else {
-        setFilePath(fileUri);
+        setselectedfiles(updatedArray);
+        setvisibleFileSlection(!visibleFileSlection);
+        setFilePath(updatedArray[0].fileCopyUri);
         setIsAttachFile(true);
       }
-      setloding(true);
-      uploadfile(fileUri);
+      // setloding(true);
+      // uploadfile(fileUri);
     } catch (err) {
       if (DocumentPicker.isCancel(err)) {
         console.log('User cancelled file picker');
@@ -195,13 +267,23 @@ const ChatScreen = ({user, route, navigation}) => {
   const renderSend = props => {
     return (
       <View style={{flexDirection: 'row'}}>
-        <TouchableOpacity onPress={_pickDocument}>
+        <TouchableOpacity
+          onPress={() => setvisibleFileSlection(!visibleFileSlection)}>
           <Icon
             type="font-awesome"
             name="attach"
             style={styles.paperClip}
             size={28}
-            color="grey"
+            color="black"
+          />
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => _pickDocument('Camera')}>
+          <Icon
+            type="font-awesome"
+            name="camera"
+            style={styles.paperClip}
+            size={28}
+            color="black"
           />
         </TouchableOpacity>
         {!loding ? (
@@ -212,7 +294,7 @@ const ChatScreen = ({user, route, navigation}) => {
                 name="send"
                 style={styles.sendButton}
                 size={25}
-                color="#009387"
+                color="#7961C1"
               />
             </View>
           </Send>
@@ -221,102 +303,195 @@ const ChatScreen = ({user, route, navigation}) => {
     );
   };
   const renderChatFooter = useCallback(() => {
-    if (imagePath) {
+    if (isAttachImage && selecedfiles.length > 0) {
       return (
-        <View style={styles.chatFooter}>
-          <ImageBackground
-            source={{uri: imagePath}}
-            style={{height: 75, width: 75, justifyContent: 'center'}}>
-            {loding == true ? (
-              <ActivityIndicator
-                color={'white'}
-                size={'small'}
-                style={{alignSelf: 'center'}}
-              />
-            ) : null}
-          </ImageBackground>
-          <TouchableOpacity
-            onPress={() => {
-              setImagePath(''), setloding(false);
-            }}
-            style={styles.buttonFooterChatImg}>
-            <View style={styles.textFooterChat}>
-              <Text style={{color: '#009387', alignSelf: 'center'}}>X</Text>
-            </View>
-          </TouchableOpacity>
+        <View style={[styles.chatFooter, {backgroundColor: colors.primary}]}>
+          <ScrollView horizontal>
+            {selecedfiles.map(item => {
+              return (
+                <View style={{flexDirection: 'row', marginRight: 10}}>
+                  <ImageBackground
+                    source={{uri: item.fileCopyUri}}
+                    style={{
+                      height: 75,
+                      width: 75,
+                      justifyContent: 'center',
+                    }}
+                  />
+                  <Icon
+                    name={'close-circle-sharp'}
+                    onPress={() => diccardSelectedFiles(item.name)}
+                    size={20}
+                    color={'white'}
+                  />
+                </View>
+              );
+            })}
+          </ScrollView>
         </View>
       );
     }
-    if (filePath) {
+    if (isAttachFile) {
       return (
-        <View style={styles.chatFooter}>
+        <View style={[styles.chatFooter, {backgroundColor: colors.primary}]}>
           <InChatFileTransfer filePath={filePath} />
-          <TouchableOpacity
-            onPress={() => setFilePath('')}
-            style={styles.buttonFooterChatImg}>
-            <View style={styles.textFooterChat}>
-              <Text style={{color: '#009387', alignSelf: 'center'}}>X</Text>
-            </View>
-          </TouchableOpacity>
+          <Icon
+            name={'close-circle-sharp'}
+            onPress={() => {
+              setIsAttachFile(false);
+              setFilePath('');
+            }}
+            size={20}
+            color={'white'}
+          />
+        </View>
+      );
+    }
+    if (sharLocation) {
+      return (
+        <View style={[styles.chatFooter, {backgroundColor: colors.primary}]}>
+          <InChatFileTransfer filePath={sharLocation} />
+          <Icon
+            name={'close-circle-sharp'}
+            onPress={() => {
+              setsharLocation('');
+            }}
+            size={20}
+            color={'white'}
+          />
+        </View>
+      );
+    }
+    if (selectedContect) {
+      return (
+        <View style={[styles.chatFooter, {backgroundColor: colors.primary}]}>
+          <InChatFileTransfer
+            filePath={`con.${selectedContect.name}. ${selectedContect.phone}`}
+          />
+
+          <Icon
+            name={'close-circle-sharp'}
+            onPress={() => {
+              setselectedContect('');
+              setshareContect(false);
+            }}
+            size={20}
+            color={'white'}
+          />
         </View>
       );
     }
     return null;
-  }, [filePath, imagePath, loding]);
+  }, [
+    filePath,
+    loding,
+    selecedfiles,
+    isAttachImage,
+    isAttachFile,
+    sharLocation,
+    visibleShareLoc,
+    shareContect,
+    selectedContect,
+    uploadimageRef,
+  ]);
+  const checkPoint = async (messages = []) => {
+    setIsAttachImage(false);
+    setIsAttachFile(false);
+    if (selecedfiles.length == 0) {
+      onSend(messages, '', '');
+    } else if (selecedfiles.length > 0) {
+      setloding(true);
+      try {
+        for (const [index, file] of selecedfiles.entries()) {
+          await uploadfile(file.fileCopyUri, messages, index);
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    }
+  };
 
   const onSend = useCallback(
-    (messages = []) => {
+    (messages = [], uploaduri, url) => {
       const [messageToSend] = messages;
-      var newMessage = {
-        ...messageToSend,
-        createdAt: new Date(),
-        sentBy: user.uid,
-        sentTo: uid,
-        image: isAttachImage
-          ? imagePath.split('.').pop() == 'mp4'
-            ? ''
-            : uplodedimagerul
-          : '',
-        vedio: isAttachImage
-          ? imagePath.split('.').pop() == 'mp4'
-            ? uplodedimagerul
-            : ''
-          : '',
-        file: {
-          url: isAttachFile
-            ? filePath.split('.').pop() == 'pdf' ||
-              filePath.split('.').pop() == 'mp3'
-              ? uplodedimagerul
-              : ''
+      console.log('uploadimageRef -----', uploadimageRef);
+      if (
+        messageToSend.text != '' ||
+        url != '' ||
+        sharLocation != '' ||
+        selectedContect != ''
+      ) {
+        setIsAttachImage(false);
+        var newMessage = {
+          ...messageToSend,
+          createdAt: new Date(),
+          sentBy: user.uid,
+          sentTo: uid,
+          seenStatus: false,
+          location: sharLocation,
+          contact: selectedContect,
+          image:
+            url != '' && filePath == ''
+              ? uploaduri.split('.').pop() == 'mp4'
+                ? ''
+                : uploadimageRef.current
+              : '',
+          vedio:
+            url != ''
+              ? uploaduri.split('.').pop() == 'mp4'
+                ? uploadimageRef.current
+                : ''
+              : '',
+          file: {
+            url:
+              filePath != ''
+                ? filePath.split('.').pop() == 'pdf' ||
+                  filePath.split('.').pop() == 'mp3'
+                  ? url
+                  : ''
+                : '',
+            type: filePath ? filePath.split('.').pop() : '',
+          },
+        };
+        console.log('newMessage------', newMessage);
+        setMessages(previousMessages =>
+          GiftedChat.append(previousMessages, newMessage),
+        );
+        const docid =
+          uid > user.uid ? user.uid + '-' + uid : uid + '-' + user.uid;
+        updateLetestMessage(from, uid, docid, newMessage);
+        updateMessages(from, uid, docid, newMessage);
+        setFilePath('');
+        setIsAttachFile(false);
+        setsharLocation('');
+        setselectedContect('');
+        setshareContect(false);
+        uploadimageRef.current = [];
+        sendNotification(
+          newMessage.text != ''
+            ? newMessage.text
+            : newMessage.image != ''
+            ? 'image'
+            : newMessage.contact
+            ? 'Contact'
+            : newMessage.file.url != ''
+            ? newMessage.file.type
             : '',
-          type: isAttachFile ? filePath.split('.').pop() : '',
-        },
-      };
-      setMessages(previousMessages =>
-        GiftedChat.append(previousMessages, newMessage),
-      );
-      const docid =
-        uid > user.uid ? user.uid + '-' + uid : uid + '-' + user.uid;
-      updateLetestMessage(from, uid, docid, newMessage);
-      updateMessages(from, uid, docid, newMessage);
-      setImagePath('');
-      setIsAttachImage(false);
-      setFilePath('');
-      setIsAttachFile(false);
-      sendNotification(
-        newMessage.text,
-        fcmTokenss,
-        `New Message From ${username}`,
-        from == 'group' ? uid : user.uid,
-      );
+          fcmTokenss,
+          `New Message From ${username}`,
+          from == 'group' ? uid : user.uid,
+        );
+      }
     },
     [
       filePath,
-      imagePath,
       isAttachFile,
       isAttachImage,
-      uplodedimagerul,
       username,
+      sharLocation,
+      selectedContect,
+      fcmTokenss,
+      uploadimageRef,
     ],
   );
   //
@@ -326,15 +501,24 @@ const ChatScreen = ({user, route, navigation}) => {
       // return funtion for attached vedio,audio and pdf massages
       if (
         (currentMessage.file && currentMessage.file.url) ||
-        currentMessage.vedio
+        currentMessage.vedio ||
+        currentMessage.location ||
+        currentMessage.contact ||
+        currentMessage.image
       ) {
         return (
           <TouchableOpacity
+            disabled={
+              (currentMessage.vedio && currentMessage.vedio.length == 1) ||
+              currentMessage?.file?.type == 'mp3'
+                ? true
+                : false
+            }
             style={{
               ...styles.fileContainer,
               backgroundColor:
                 props.currentMessage.user._id === user.uid
-                  ? '#009387'
+                  ? colors.primary
                   : 'lightgrey',
               borderBottomLeftRadius:
                 props.currentMessage.user._id === user.uid ? 15 : 5,
@@ -344,19 +528,46 @@ const ChatScreen = ({user, route, navigation}) => {
                 props.currentMessage.user._id === user.uid
                   ? 0
                   : currentMessage.vedio
-                  ? '35%'
+                  ? '17%'
+                  : currentMessage.image
+                  ? '17%'
                   : '35%',
             }}
             onPress={() => {
-              setFileVisible(!fileVisible);
-              setselecteditem(currentMessage);
+              if (currentMessage.location) {
+                Linking.openURL(currentMessage.location);
+              } else if (currentMessage.contact) {
+                let phoneNumber;
+                if (Platform.OS !== 'android') {
+                  phoneNumber = `telprompt:${currentMessage.contact.phone}`;
+                } else {
+                  phoneNumber = `tel:${currentMessage.contact.phone}`;
+                }
+                Linking.openURL(phoneNumber);
+              } else {
+                setFileVisible(!fileVisible);
+                setselecteditem(currentMessage);
+              }
             }}>
             <InChatFileTransfer
               style={{marginTop: -10}}
               filePath={
                 currentMessage.vedio
-                  ? currentMessage.vedio
+                  ? 'ved'
+                  : currentMessage.location
+                  ? currentMessage.location
+                  : currentMessage.contact
+                  ? `con.${currentMessage.contact.name}.${currentMessage.contact.phone}`
+                  : currentMessage.image
+                  ? 'img'
                   : currentMessage.file.url
+              }
+              imediaArry={
+                currentMessage.image
+                  ? currentMessage.image
+                  : currentMessage.vedio
+                  ? currentMessage.vedio
+                  : []
               }
             />
             <Text
@@ -371,9 +582,32 @@ const ChatScreen = ({user, route, navigation}) => {
                 {props.currentMessage.user._id !== user.uid &&
                   currentMessage.user.name}
               </Text>
-              <Text style={styles.msgTimetext}>
-                {timeFormat(currentMessage.createdAt)}
-              </Text>
+              <View style={{flexDirection: 'row'}}>
+                <Text
+                  style={[
+                    styles.msgTimetext,
+                    {
+                      color:
+                        props.currentMessage.user._id == user.uid
+                          ? 'white'
+                          : 'black',
+                    },
+                  ]}>
+                  {timeFormat(currentMessage.createdAt)}
+                </Text>
+                {props.currentMessage.user._id == user.uid ? (
+                  <Icon
+                    name="checkmark-done"
+                    size={15}
+                    color={currentMessage.seenStatus ? 'skyblue' : 'white'}
+                    style={{padding: 4}}
+                  />
+                ) : (
+                  currentMessage.vedio.length == 1 && (
+                    <DownloadButton filePath={currentMessage.vedio[0]} />
+                  )
+                )}
+              </View>
             </View>
           </TouchableOpacity>
         );
@@ -385,7 +619,7 @@ const ChatScreen = ({user, route, navigation}) => {
           renderUsernameOnMessage={from == 'group' ? true : false}
           wrapperStyle={{
             right: {
-              backgroundColor: '#009387',
+              backgroundColor: colors.primary,
             },
             left: {
               backgroundColor: 'lightgrey',
@@ -402,19 +636,33 @@ const ChatScreen = ({user, route, navigation}) => {
     },
     [fileVisible, selecteditem],
   );
-
   // for scrolling mssages to the most recent
   const scrollToBottomComponent = () => {
     return <FontAwesome name="angle-double-down" size={22} color="#333" />;
   };
-
+  const renderTicks = currentMessage => {
+    if (currentMessage.user._id !== user.uid) {
+      return;
+    }
+    return (
+      <View>
+        <Icon
+          name="checkmark-done"
+          size={15}
+          color={currentMessage.seenStatus ? 'skyblue' : 'white'}
+          style={{padding: 4}}
+        />
+      </View>
+    );
+  };
   return (
     <View style={{flex: 1}}>
       <GiftedChat
         style={{flex: 1}}
         messages={messages}
-        onSend={text => onSend(text)}
+        onSend={text => checkPoint(text)}
         renderChatFooter={renderChatFooter}
+        renderTicks={renderTicks}
         renderSend={renderSend}
         user={{
           _id: user.uid,
@@ -425,8 +673,12 @@ const ChatScreen = ({user, route, navigation}) => {
           return (
             <InputToolbar
               {...props}
-              containerStyle={{borderTopWidth: 1.5, borderTopColor: '#009387'}}
-              textInputStyle={{color: 'black'}}
+              containerStyle={{
+                borderTopColor: colors.primary,
+              }}
+              textInputStyle={{
+                color: 'black',
+              }}
             />
           );
         }}
@@ -452,65 +704,40 @@ const ChatScreen = ({user, route, navigation}) => {
         groupId={uid}
         onClose={() => setshowAddUser(false)}
       />
+      {/* File Selection Model */}
+      <FileSelection
+        visible={visibleFileSlection}
+        onClose={() => setvisibleFileSlection(false)}
+        onSelect={val => _pickDocument(val)}
+      />
+      {/* Loction Share Component */}
+      {visibleShareLoc && (
+        <ShareLoctionCom
+          visible={visibleShareLoc}
+          onClose={() => setvisibleShareLoc(false)}
+          onSelect={val => {
+            setvisibleShareLoc(false);
+            setsharLocation(val);
+          }}
+        />
+      )}
+      {/* Contect Share Component */}
+      {shareContect && (
+        <ShareContect
+          visible={shareContect}
+          onClose={() => setshareContect(false)}
+          onSelect={val => {
+            setshareContect(false);
+            val && setselectedContect(val);
+          }}
+        />
+      )}
     </View>
   );
 };
 export default ChatScreen;
 
 export const styles = StyleSheet.create({
-  Contain: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  Container: {
-    marginTop: 32,
-    paddingHorizontal: 24,
-  },
-  card: {
-    width: '100%',
-    height: 'auto',
-    marginHorizontal: 4,
-    marginVertical: 6,
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-  },
-  sectionTitle: {
-    fontSize: 24,
-    fontWeight: '600',
-  },
-  imageContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  userImage: {
-    paddingTop: 15,
-    paddingBottom: 15,
-  },
-  userImageST: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-  },
-  textArea: {
-    flexDirection: 'column',
-    justifyContent: 'center',
-    padding: 5,
-    paddingLeft: 10,
-    width: 300,
-    backgroundColor: 'transparent',
-    borderBottomWidth: 1,
-    borderBottomColor: '#cccccc',
-  },
-  userText: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  nameText: {
-    fontSize: 14,
-    fontWeight: '900',
-    fontFamily: 'Verdana',
-  },
   fileContainer: {
     flex: 1,
     maxWidth: 300,
@@ -524,56 +751,22 @@ export const styles = StyleSheet.create({
     marginLeft: 10,
     marginRight: 5,
   },
-  msgTime: {
-    textAlign: 'right',
-    fontSize: 11,
-    marginTop: -20,
-  },
-  msgContent: {
-    paddingTop: 5,
-  },
-  sectionDescription: {
-    marginTop: 8,
-    fontSize: 18,
-    fontWeight: '400',
-  },
-  highlight: {
-    fontWeight: '700',
-  },
   sendContainer: {
     padding: 8,
-  },
-  video: {
-    width: '92%',
-    aspectRatio: 16 / 9,
-    marginTop: 10,
-    marginLeft: '4%',
-    marginRight: '4%',
-    alignSelf: 'center',
-    justifyContent: 'center',
   },
   paperClip: {
     padding: 8,
   },
   chatFooter: {
-    backgroundColor: '#009387',
     flexDirection: 'row',
     padding: 7,
-  },
-  textFooterChat: {
-    backgroundColor: 'lightgrey',
-    borderRadius: 40,
-    color: 'white',
-    width: 20,
-    height: 20,
-    justifyContent: 'center',
   },
   msgTimetext: {
     alignSelf: 'flex-end',
     margin: 4,
     fontSize: 12,
     backgroundColor: 'transparent',
-    color: 'white',
+    color: 'black',
   },
   msgTimetextCon: {
     flexDirection: 'row',

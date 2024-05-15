@@ -1,3 +1,4 @@
+/* eslint-disable react-native/no-inline-styles */
 import React, {useState, useEffect, useCallback} from 'react';
 import {
   View,
@@ -10,7 +11,10 @@ import {
 import Icon from 'react-native-vector-icons/Ionicons';
 import firestore from '@react-native-firebase/firestore';
 import {sendNotification} from '../Notification/NotificationController';
+import {useTheme} from '@react-navigation/native';
+
 function AddUserc({visible, props, groupId, onClose}) {
+  const {primary} = useTheme().colors;
   const [userMembers, setuserMembers] = useState([]);
   const [selected, setSelected] = useState([]);
   const [selectedFcm, setSelectedfcm] = useState([]);
@@ -70,7 +74,6 @@ function AddUserc({visible, props, groupId, onClose}) {
 
   const selectMemeber = (id, fcmToken) => {
     const index = selected.indexOf(id);
-    const tokenindex = selectedFcm.indexOf(fcmToken);
     if (index === -1) {
       setSelected([...selected, id]);
       setSelectedfcm([...selectedFcm, fcmToken]);
@@ -84,10 +87,12 @@ function AddUserc({visible, props, groupId, onClose}) {
   const renderCheckIcon = useCallback(
     id => {
       if (selected.indexOf(id) !== -1)
+        // eslint-disable-next-line curly
         return (
           <Icon
             name="checkmark-circle"
-            color={'#009387'}
+            color={primary}
+            style={{right: 20}}
             size={30}
             onPress={onClose}
           />
@@ -113,7 +118,11 @@ function AddUserc({visible, props, groupId, onClose}) {
                   onPress={() => selectMemeber(item.uid, item.fcmToken)}>
                   <View style={styles.card}>
                     <View style={{flexDirection: 'row'}}>
-                      <View style={styles.userImageST}>
+                      <View
+                        style={[
+                          styles.userImageST,
+                          {backgroundColor: primary},
+                        ]}>
                         <Icon
                           style={{alignSelf: 'center'}}
                           name={'person'}
@@ -143,7 +152,7 @@ function AddUserc({visible, props, groupId, onClose}) {
           color={'white'}
           size={30}
           onPress={addMemberToGroup}
-          style={styles.iconStyle}
+          style={[styles.iconStyle, {backgroundColor: primary}]}
         />
       </View>
     </Modal>
@@ -151,18 +160,8 @@ function AddUserc({visible, props, groupId, onClose}) {
 }
 export default AddUserc;
 const styles = StyleSheet.create({
-  buttonCancel: {
-    width: 35,
-    height: 35,
-    borderRadius: 50,
-    justifyContent: 'center',
-    alignItems: 'center',
-    position: 'absolute',
-    borderColor: 'black',
-    left: 13,
-  },
   card: {
-    width: '90%',
+    width: '70%',
     height: 'auto',
     marginHorizontal: 4,
     marginVertical: 6,
@@ -173,7 +172,6 @@ const styles = StyleSheet.create({
     height: 50,
     borderRadius: 25,
     alignSelf: 'center',
-    backgroundColor: '#009387',
     justifyContent: 'center',
   },
   textArea: {
@@ -212,7 +210,6 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: 25,
     right: 30,
-    backgroundColor: '#009387',
     padding: 10,
     borderRadius: 5,
   },
