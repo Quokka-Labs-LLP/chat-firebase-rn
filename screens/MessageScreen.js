@@ -7,39 +7,25 @@ import {
   Text,
   Image,
   FlatList,
-  Button,
-  useColorScheme,
   View,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
-import {NavigationContainer} from '@react-navigation/native';
-import ChatScreen from './ChatScreen';
-import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import {ScrollView} from 'react-native-virtualized-view';
 import firestore from '@react-native-firebase/firestore';
-
+import {getUsers} from './helper/hepler';
 Icon.loadFont().then();
-
-const Stack = createNativeStackNavigator();
 
 const MessageScreen = ({user, navigation}) => {
   const [users, setUsers] = useState(null);
-  //   const [messages, setMessages] = useState([]);
 
   useEffect(() => {
-    function onResult(QuerySnapshot) {
-      try {
-        const allUsers = QuerySnapshot.docs.map(docSnap => docSnap.data());
-        setUsers(allUsers);
-      } catch (error) {
-        console.log('docSanp==', error);
-      }
+    function onResultt(QuerySnapshot) {
+      setUsers(getUsers(QuerySnapshot));
     }
-
     const unsubscribe = firestore()
       .collection('users')
       .where('uid', '!=', user.uid)
-      .onSnapshot(onResult);
+      .onSnapshot(onResultt);
     return () => unsubscribe;
   }, []);
 

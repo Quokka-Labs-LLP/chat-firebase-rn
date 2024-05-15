@@ -42,7 +42,6 @@ const ProfileScreen = ({user}) => {
       .get();
     const allUsers = querySanp.docs.map(docSnap => docSnap.data());
     setUsers(allUsers);
-    console.log(users);
     setloding(false);
   };
 
@@ -50,7 +49,6 @@ const ProfileScreen = ({user}) => {
     getUsers();
   }, [lodingtwo]);
   const geturl = async filename => {
-    console.log('get url....');
     let imageRef = storagee().ref('/' + filename);
     imageRef
       .getDownloadURL()
@@ -86,7 +84,6 @@ const ProfileScreen = ({user}) => {
       });
       const fileUri = result[0].fileCopyUri;
       if (!fileUri) {
-        console.log('File URI is undefined or null');
         return;
       }
       if (fileUri.indexOf('.png') !== -1 || fileUri.indexOf('.jpg') !== -1) {

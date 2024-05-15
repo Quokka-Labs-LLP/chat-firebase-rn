@@ -14,7 +14,6 @@ import storagee from '@react-native-firebase/storage';
 import DocumentPicker from 'react-native-document-picker';
 import {sendNotification} from './Notification/NotificationController';
 const About = ({navigation, route, user}) => {
-  console.log('user', user);
   const {groupitem} = route.params;
   const [groupmembers, setgroupmembers] = useState([]);
   const [grupeImage, setgrupimage] = useState();
@@ -26,7 +25,6 @@ const About = ({navigation, route, user}) => {
           try {
             const fcmtokens = QuerySnapshot.docs.map(docSnap => docSnap.data());
             setgroupmembers(fcmtokens);
-            // console.log('groupmembers', groupmembers);
           } catch (error) {
             console.log('docSnap==', error);
           }
@@ -78,7 +76,6 @@ const About = ({navigation, route, user}) => {
         user.uid,
       );
       // navigation.goBack();
-      console.log('User removed from the group successfully!');
     } catch (error) {
       console.error('Error removing user from the group:', error);
     }
@@ -121,7 +118,6 @@ const About = ({navigation, route, user}) => {
         system: true,
       });
       navigation.navigate('Group');
-      console.log('User removed from the group successfully!');
     } catch (error) {
       console.error('Error removing user from the group:', error);
     }
@@ -165,7 +161,6 @@ const About = ({navigation, route, user}) => {
     );
   };
   const geturl = async filename => {
-    console.log('get url....');
     let imageRef = storagee().ref('/' + filename);
     imageRef
       .getDownloadURL()
@@ -201,7 +196,6 @@ const About = ({navigation, route, user}) => {
       });
       const fileUri = result[0].fileCopyUri;
       if (!fileUri) {
-        console.log('File URI is undefined or null');
         return;
       }
       if (fileUri.indexOf('.png') !== -1 || fileUri.indexOf('.jpg') !== -1) {

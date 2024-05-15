@@ -19,33 +19,8 @@ const SigninScreen = ({navigation}) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [data, setData] = React.useState({
-    email: '',
-    password: '',
-    check_textInputChange: false,
     secureTextEntry: true,
   });
-  const textInputChange = val => {
-    if (val.length >= 10) {
-      setData({
-        ...data,
-        email: val,
-        check_textInputChange: true,
-      });
-    } else {
-      setData({
-        ...data,
-        email: val,
-        check_textInputChange: false,
-      });
-    }
-  };
-
-  const handlePassword = val => {
-    setData({
-      ...data,
-      password: val,
-    });
-  };
 
   const updateSecureText = () => {
     setData({
@@ -61,7 +36,6 @@ const SigninScreen = ({navigation}) => {
     }
     try {
       const newReg = await auth().signInWithEmailAndPassword(email, password);
-
       console.log('Sign in done', newReg);
       firestore()
         .collection('users')
@@ -125,6 +99,7 @@ const SigninScreen = ({navigation}) => {
             style={styles.textInput}
             autoCapitalize="none"
             value={password}
+            maxLength={10}
             onChangeText={setPassword}
             placeholderTextColor={'grey'}
           />
